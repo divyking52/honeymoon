@@ -1,0 +1,2932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Elysian Escapes composes private honeymoons — Maldives, Bali, Santorini, Paris, the Alps, Dubai, Kerala, Phuket, Venice, and Maui.">
+<meta name="theme-color" content="#071018">
+<title>Elysian Escapes — Begin Your Forever</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,400;1,6..96,500;1,6..96,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.27/dist/lenis.css">
+<style>
+/* =========================================================
+   ELYSIAN ESCAPES
+   Tokens, reset, and the scroll model.
+   Each [data-scene] receives --progress (0 to 1) from the
+   rAF loop. Pinned scenes scrub while stuck. Others scrub
+   as they travel through the viewport.
+   --enter is how fully a section has arrived (titles).
+   --page is the document scroll fraction (top bar).
+   ========================================================= */
+:root {
+  --ink: #071018;
+  --ink-soft: #12202c;
+  --navy: #0c1824;
+  --ivory: #f4efe6;
+  --ivory-2: #f7f1e7;
+  --paper: #f3eadc;
+  --blush: #e7b7b4;
+  --rose: #b76e79;
+  --gold: #c9956c;
+  --champagne: #e7d3b0;
+  --line: rgba(231, 211, 176, 0.28);
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --serif: "Cormorant Garamond", "Palatino Linotype", Palatino, serif;
+  --display: "Bodoni Moda", "Cormorant Garamond", "Palatino Linotype", Palatino, serif;
+  --sans: Outfit, "Segoe UI", sans-serif;
+  --page: 0;
+  --mx: 0;
+  --my: 0;
+  --nav-h: 76px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: auto; scroll-padding-top: 84px; }
+html.lenis, html.lenis body { height: auto; }
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--ivory);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+img { max-width: 100%; display: block; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+h1, h2, h3, p { text-wrap: pretty; }
+h1, h2 { text-wrap: balance; }
+ul { margin: 0; padding: 0; list-style: none; }
+::selection { background: var(--gold); color: var(--ink); }
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--champagne); outline-offset: 3px; }
+[hidden] { display: none !important; }
+.skip {
+  position: absolute; left: 12px; top: -40px; z-index: 500;
+  background: var(--ivory); color: var(--ink); padding: 8px 12px;
+}
+.skip:focus { top: 12px; }
+
+/* Scroll progress — rose-gold, scaleX so it stays on the compositor */
+.progress {
+  position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 220;
+  transform-origin: 0 50%;
+  transform: scaleX(var(--page));
+  background: linear-gradient(90deg, #8c4d57, var(--blush), var(--champagne), var(--gold));
+  pointer-events: none;
+}
+
+/* Grain sits above art, under UI */
+.grain {
+  position: fixed; inset: 0; z-index: 80; pointer-events: none; opacity: .18;
+  mix-blend-mode: overlay; background-repeat: repeat; background-size: 140px 140px;
+}
+
+/* Custom cursor — glowing ring. Enabled only with a fine pointer. */
+.cursor {
+  display: none; position: fixed; left: 0; top: 0; z-index: 260;
+  width: 38px; height: 38px; margin: 0; border-radius: 50%;
+  border: 1px solid rgba(231, 211, 176, .95);
+  box-shadow: 0 0 0 1px rgba(183, 110, 121, .25), 0 0 22px rgba(201, 149, 108, .55);
+  pointer-events: none; opacity: 0;
+}
+.cursor i {
+  position: absolute; left: 50%; top: 50%; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--blush); transform: translate(-50%, -50%);
+}
+html.has-cursor .cursor { display: block; }
+html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
+html.has-cursor input, html.has-cursor textarea, html.has-cursor select { cursor: text; }
+.cursor.is-hidden { opacity: 0 !important; }
+
+/* ---------- Preloader ---------- */
+.preloader {
+  position: fixed; inset: 0; z-index: 300; display: grid; place-items: center;
+  background: radial-gradient(ellipse at 50% 40%, #1a2836, var(--ink) 70%);
+  transition: opacity .8s var(--ease), visibility .8s;
+}
+.preloader.is-done { opacity: 0; visibility: hidden; }
+.pre-mark { width: 92px; text-align: center; color: var(--champagne); }
+.pre-mark svg { width: 72px; height: 72px; display: block; margin: 0 auto 12px; }
+.pre-heart {
+  fill: transparent; stroke: var(--champagne); stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 220; stroke-dashoffset: 220;
+  animation: drawHeart 1.5s var(--ease) forwards, fillHeart .5s 1s ease forwards;
+}
+.pre-ring {
+  transform-origin: 32px 32px;
+  animation: spin 2.4s linear infinite;
+}
+@keyframes drawHeart { to { stroke-dashoffset: 0; } }
+@keyframes fillHeart { to { fill: rgba(183, 110, 121, .85); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.pre-mark p {
+  margin: 0; letter-spacing: .28em; text-transform: uppercase; font-size: 10px;
+}
+
+/* ---------- Nav ---------- */
+.nav {
+  position: fixed; inset: 0 0 auto 0; z-index: 160;
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: var(--nav-h);
+  padding: 0 4vw; gap: 24px;
+  background: linear-gradient(180deg, rgba(7, 16, 24, .72) 0%, rgba(7, 16, 24, .38) 55%, rgba(7, 16, 24, .08) 100%);
+  transition: background .4s var(--ease), backdrop-filter .4s, border-color .4s, box-shadow .4s;
+  border-bottom: 1px solid transparent;
+}
+.nav.is-scrolled, .nav.is-open {
+  background: rgba(7, 16, 24, .86);
+  backdrop-filter: blur(18px) saturate(1.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  border-bottom-color: rgba(231, 211, 176, .16);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .28);
+}
+.logo {
+  display: flex; align-items: center; gap: 10px; text-decoration: none;
+  flex-shrink: 0; color: var(--ivory);
+}
+.logo-mark {
+  width: 36px; height: 36px; border: 1px solid var(--champagne); border-radius: 50%;
+  display: grid; place-items: center; font-family: var(--serif); font-size: 20px; color: var(--champagne);
+}
+.logo strong {
+  display: block; font-family: var(--sans); font-weight: 500;
+  font-size: 13px; letter-spacing: .22em; line-height: 1.15; text-transform: uppercase;
+}
+.logo small {
+  display: block; letter-spacing: .34em; text-transform: uppercase;
+  font-size: 8px; color: var(--champagne); margin-top: 2px;
+}
+.nav-menu {
+  display: flex; align-items: center; gap: 8px 28px;
+  margin-left: auto;
+}
+.nav-menu a:not(.btn) {
+  position: relative; text-decoration: none;
+  font-family: var(--sans); font-size: 11px; font-weight: 500;
+  letter-spacing: .2em; text-transform: uppercase;
+  padding: 10px 0; color: rgba(244, 239, 230, .96);
+  text-shadow: 0 1px 2px rgba(7, 16, 24, .55), 0 2px 18px rgba(7, 16, 24, .5);
+  white-space: nowrap;
+}
+.nav-menu a:not(.btn)::after {
+  content: ""; position: absolute; left: 50%; bottom: 6px; width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--champagne), transparent);
+  transform: translateX(-50%) scaleX(0); transform-origin: center;
+  transition: transform .4s var(--ease);
+}
+.nav-menu a:not(.btn):hover::after,
+.nav-menu a:not(.btn):focus-visible::after { transform: translateX(-50%) scaleX(1); }
+.nav-menu .btn-nav {
+  margin-left: 8px;
+  padding: 12px 20px;
+  font-size: 10px; letter-spacing: .18em;
+  line-height: 1.2;
+  color: #1c120e;
+  box-shadow: 0 8px 28px rgba(183, 110, 121, .35);
+  text-shadow: none;
+  white-space: nowrap;
+}
+.nav-toggle {
+  display: none; width: 44px; height: 44px; border: 1px solid var(--line); background: transparent;
+  border-radius: 50%; position: relative; flex-shrink: 0;
+}
+.nav-toggle span, .nav-toggle span::before, .nav-toggle span::after {
+  position: absolute; left: 12px; width: 18px; height: 1px; background: var(--ivory); content: "";
+  transition: transform .3s var(--ease), opacity .3s;
+}
+.nav-toggle span { top: 21px; }
+.nav-toggle span::before { top: -6px; }
+.nav-toggle span::after { top: 6px; }
+.nav.is-open .nav-toggle span { background: transparent; }
+.nav.is-open .nav-toggle span::before { top: 0; transform: rotate(40deg); }
+.nav.is-open .nav-toggle span::after { top: 0; transform: rotate(-40deg); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  --mx: 0px; --my: 0px;
+  position: relative; isolation: isolate; overflow: hidden;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border-radius: 999px; padding: 15px 22px; text-decoration: none;
+  letter-spacing: .16em; text-transform: uppercase; font-size: 11px; font-weight: 600;
+  border: 1px solid transparent;
+  transform: translate3d(var(--mx), var(--my), 0);
+  transition: transform .2s var(--ease), background .3s, color .3s, box-shadow .3s, border-color .3s;
+}
+.btn::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(110deg, transparent 28%, rgba(255,255,255,.55) 50%, transparent 72%);
+  transform: translateX(-130%);
+}
+.btn:hover::before { animation: sweep .8s var(--ease); }
+@keyframes sweep { to { transform: translateX(130%); } }
+.btn-solid {
+  background: linear-gradient(100deg, #f0d7b4, #c9956c 42%, #b76e79);
+  color: #1c120e; box-shadow: 0 10px 30px rgba(183, 110, 121, .25);
+}
+.btn-solid:hover { box-shadow: 0 16px 36px rgba(183, 110, 121, .4); }
+.btn-ghost { background: transparent; color: var(--ivory); border-color: rgba(244, 239, 230, .45); }
+.btn-ghost:hover { background: rgba(244, 239, 230, .08); }
+.btn-ink { background: var(--ink); color: var(--ivory); }
+.btn-ink:hover { background: #162838; }
+.ripple {
+  position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%;
+  background: rgba(255,255,255,.45); transform: scale(0); animation: rip .65s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes rip { to { transform: scale(16); opacity: 0; } }
+
+/* ---------- Scenes ---------- */
+.scene { --progress: 1; --enter: 1; position: relative; }
+.sticky { position: relative; }
+.sec-head { max-width: 760px; margin-bottom: 28px; }
+.eyebrow {
+  margin: 0 0 10px; letter-spacing: .28em; text-transform: uppercase;
+  font-size: 11px; color: var(--gold);
+}
+.light .eyebrow { color: #8d5348; }
+h1, h2, h3 { font-family: var(--serif); font-weight: 500; letter-spacing: -.03em; margin: 0; }
+h2 { font-size: clamp(2.5rem, 5vw, 4.6rem); line-height: .95; }
+h3 { font-size: 1.7rem; line-height: 1.05; }
+.lede { font-size: 1.05rem; max-width: 46rem; color: rgba(244,239,230,.78); }
+.light .lede, .light p { color: rgba(7,16,24,.78); }
+
+/* Split titles — scrubbed with --enter, so they settle and stay */
+html.is-motion .split .word { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .12em; margin-bottom: -.12em; }
+html.is-motion .split .word > span {
+  display: inline-block;
+  transform: translateY(calc((1 - clamp(0, var(--enter) * 1.45 - var(--i) * .08, 1)) * 120%));
+}
+
+/* Media + gradient fallback if the photograph fails */
+.media { position: relative; overflow: hidden; background: var(--wash, linear-gradient(145deg, #163044, #c9956c 70%, #e7b7b4)); }
+.media img { width: 100%; height: 100%; object-fit: cover; }
+.media img.is-broken { opacity: 0; }
+.glare {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .35s;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,.38), transparent 42%);
+}
+.tilt:hover .glare, .tilt:focus-within .glare { opacity: 1; }
+
+/* =========================================================
+   1. HERO — couple film + scroll expand → cream wipe
+   Motion principles: sticky pin, scrubbed transform/opacity/clip-path
+   ========================================================= */
+.scene-hero { height: 100vh; height: 100dvh; background: var(--ink); }
+html.is-motion .scene-hero { height: 220vh; }
+html.is-motion .scene-hero .sticky {
+  position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden;
+}
+.hero-stage {
+  position: relative; height: 100%; min-height: 100vh; min-height: 100dvh;
+}
+/* Film starts as the right pane, expands to full bleed as you scroll */
+.hero-film {
+  --open: clamp(0, var(--progress) / .55, 1);
+  position: absolute; inset: 0; z-index: 1; overflow: hidden;
+  background: linear-gradient(145deg, #163044, #c9956c 70%, #e7b7b4);
+  clip-path: inset(0 0 0 calc((1 - var(--open)) * 40%));
+  transform: scale(calc(1 + var(--open) * .06));
+  transform-origin: 70% 50%;
+  will-change: clip-path, transform;
+}
+.hero-film video,
+.hero-film .hero-poster {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+.hero-film video { z-index: 1; }
+.hero-film .hero-poster { z-index: 0; }
+.hero-film-veil {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(7,16,24, calc(.92 - var(--open) * .55)) 0%, rgba(7,16,24,.15) 38%, transparent 58%),
+    linear-gradient(180deg, rgba(7,16,24,.35) 0%, transparent 28%, rgba(7,16,24, calc(.15 + max(0, var(--progress) - .45) * 1.2)) 100%);
+}
+.hero-panel {
+  position: relative; z-index: 3;
+  width: min(46%, 560px); height: 100%;
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 0;
+  max-width: 36rem;
+  padding: calc(var(--nav-h) + 48px) 4vw max(56px, env(safe-area-inset-bottom, 0px) + 48px) 5vw;
+  box-sizing: border-box;
+  background: linear-gradient(90deg, var(--ink) 0%, var(--ink) 78%, rgba(7, 16, 24, .55) 92%, transparent);
+  transform: translate3d(calc(var(--progress) * -28%), 0, 0);
+  opacity: calc(1 - max(0, var(--progress) - .18) * 2.4);
+  will-change: transform, opacity;
+  pointer-events: auto;
+  min-height: 0;
+}
+html.is-motion .hero-panel { pointer-events: none; }
+html.is-motion .hero-panel a,
+html.is-motion .hero-panel button { pointer-events: auto; }
+/* Masthead — lock to reference: Bodoni display, italic Escapes + flourish */
+.hero-mast {
+  display: grid; grid-template-columns: auto auto 1fr;
+  gap: 0 16px; align-items: stretch;
+  margin-bottom: clamp(28px, 4.5vh, 48px);
+}
+.hero-index {
+  display: flex; align-items: center; justify-content: center;
+  padding: 8px 0;
+  font-family: var(--sans);
+  font-size: 9px; font-weight: 500; letter-spacing: .42em; text-transform: uppercase;
+  color: rgba(231, 211, 176, .88);
+  writing-mode: vertical-rl; transform: rotate(180deg);
+}
+.hero-rail {
+  width: 1px; align-self: stretch;
+  background: linear-gradient(180deg, rgba(231, 211, 176, .55), rgba(231, 211, 176, .08));
+  margin: 6px 0;
+}
+.hero-mast-copy { display: flex; flex-direction: column; gap: 10px; justify-content: center; min-width: 0; }
+.hero-brand {
+  margin: 0; font-family: var(--display); font-weight: 500;
+  font-size: clamp(3.1rem, 6.2vw, 5.35rem); line-height: .86; letter-spacing: -.04em;
+  display: flex; flex-wrap: wrap; align-items: baseline; column-gap: .28em; row-gap: .02em;
+  background: linear-gradient(105deg, #fff8ef 8%, #f4efe6 38%, #e7d3b0 72%, #f7f1e7 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero-brand-a,
+.hero-brand-b { display: inline-block; }
+.hero-cap {
+  font-size: 1.12em; font-weight: 600; letter-spacing: -.05em;
+}
+.hero-brand-a { font-style: normal; font-weight: 500; }
+.hero-brand-b {
+  position: relative; font-style: italic; font-weight: 500;
+  padding-bottom: .14em;
+}
+.hero-brand-b svg.hero-flourish {
+  position: absolute; left: 0; right: -.18em; bottom: 0; width: 108%; height: 10px;
+  overflow: visible; pointer-events: none;
+}
+.hero-brand-b svg.hero-flourish path {
+  fill: none; stroke: rgba(231, 211, 176, .9); stroke-width: 1.25;
+  stroke-linecap: round;
+}
+.hero-vol {
+  margin: 0; font-family: var(--sans);
+  font-size: 9px; letter-spacing: .38em; text-transform: uppercase;
+  color: rgba(231, 211, 176, .58); font-weight: 400;
+}
+.hero-display {
+  margin: 0 0 clamp(22px, 3.2vh, 34px); display: flex; flex-direction: column; gap: 2px;
+}
+.hero-display .hero-line { display: block; line-height: .92; }
+.hero-display .hero-line--soft {
+  font-family: var(--display); font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+  font-weight: 600; letter-spacing: .34em; text-transform: uppercase;
+  color: #e7d3b0;
+}
+.hero-display .hero-line--strong {
+  font-family: var(--display);
+  font-size: clamp(2.55rem, 4.8vw, 4rem); font-weight: 500;
+  font-style: italic; letter-spacing: -.03em;
+  color: #f7f1e7;
+  margin-top: .02em;
+}
+.hero-display .hero-line--strong .dot {
+  color: #c9956c; font-style: italic; margin-left: .04em;
+}
+.hero-lead {
+  display: grid; grid-template-columns: 1px 1fr; gap: 18px; align-items: start;
+  margin: 0 0 clamp(28px, 4vh, 40px); max-width: 26rem;
+}
+.hero-lead-rule {
+  width: 1px; min-height: 100%; align-self: stretch;
+  background: linear-gradient(180deg, #e7d3b0, rgba(201, 149, 108, .1));
+}
+.hero-lead p {
+  margin: 0; font-family: var(--sans);
+  font-size: .95rem; font-weight: 300; line-height: 1.75;
+  color: rgba(244, 239, 230, .58); letter-spacing: .015em;
+}
+.cta-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 20px 26px;
+  margin-bottom: clamp(28px, 4vh, 44px);
+}
+.hero-aside {
+  margin: 0;
+  max-width: 22rem;
+  padding-top: 18px;
+  border-top: 1px solid rgba(231, 211, 176, .22);
+  font-family: var(--sans);
+  font-size: .82rem;
+  font-weight: 300;
+  line-height: 1.7;
+  letter-spacing: .03em;
+  color: rgba(231, 211, 176, .55);
+}
+.hero-panel .btn-solid {
+  padding: 14px 26px;
+  background: linear-gradient(100deg, #f0d7b4 0%, #d4a574 42%, #c9897e 78%, #b76e79 100%);
+  letter-spacing: .18em;
+}
+.hero-panel .btn-solid span {
+  margin-left: 6px; font-size: 1.05em; font-weight: 400;
+}
+.hero-text-link {
+  display: inline-flex; align-items: center; gap: 12px;
+  text-decoration: none; color: rgba(244, 239, 230, .78);
+  font-family: var(--sans);
+  font-size: 10px; font-weight: 500; letter-spacing: .26em; text-transform: uppercase;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(244, 239, 230, .28);
+  transition: color .3s var(--ease), border-color .3s var(--ease), gap .3s var(--ease);
+}
+.hero-text-link i {
+  width: 34px; height: 1px; background: currentColor; position: relative;
+  transition: width .35s var(--ease);
+}
+.hero-text-link i::after {
+  content: ""; position: absolute; right: 0; top: 50%; width: 5px; height: 5px;
+  border-right: 1px solid currentColor; border-top: 1px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+}
+.hero-text-link:hover { color: var(--champagne); border-color: rgba(231, 211, 176, .55); gap: 16px; }
+.hero-text-link:hover i { width: 44px; }
+@keyframes hero-rise {
+  from { opacity: 0; transform: translate3d(0, 22px, 0); filter: blur(4px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+.hero-mast,
+.hero-display .hero-line,
+.hero-lead,
+.cta-row,
+.hero-aside {
+  animation: hero-rise 1s var(--ease) both;
+}
+.hero-mast { animation-delay: .05s; }
+.hero-display .hero-line--soft { animation-delay: .18s; }
+.hero-display .hero-line--strong { animation-delay: .3s; }
+.hero-lead { animation-delay: .42s; }
+.cta-row { animation-delay: .54s; }
+.hero-aside { animation-delay: .66s; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-mast, .hero-display .hero-line, .hero-lead, .cta-row, .hero-aside { animation: none; }
+}
+@media (max-height: 760px) {
+  .hero-panel {
+    justify-content: flex-start;
+    padding-top: calc(var(--nav-h) + 20px);
+    padding-bottom: max(36px, env(safe-area-inset-bottom, 0px) + 28px);
+  }
+  .hero-mast { margin-bottom: 18px; }
+  .hero-display { margin-bottom: 14px; }
+  .hero-brand { font-size: clamp(2.5rem, 4.8vw, 4rem); }
+  .hero-display .hero-line--strong { font-size: clamp(2rem, 3.6vw, 3rem); }
+  .hero-lead { margin-bottom: 18px; }
+  .cta-row { gap: 12px 18px; margin-bottom: 18px; }
+  .hero-panel .btn-solid { padding: 12px 18px; font-size: 10px; }
+  .hero-aside { padding-top: 12px; font-size: .78rem; }
+}
+.hero-feature {
+  position: absolute; right: 28px; bottom: 28px; z-index: 4;
+  display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--ivory);
+  opacity: calc(1 - max(0, var(--progress) - .2) * 2.5);
+  transform: translate3d(calc(var(--progress) * 40px), 0, 0);
+}
+.hero-feature span { display: block; text-align: right; }
+.hero-feature small {
+  display: block; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold);
+}
+.hero-feature strong { display: block; font-family: var(--serif); font-size: 1.25rem; font-weight: 500; }
+.hero-feature i {
+  width: 48px; height: 48px; border-radius: 50%; border: 1px solid rgba(255,255,255,.22);
+  display: grid; place-items: center; transition: background .3s var(--ease), transform .3s var(--ease);
+}
+.hero-feature i svg { width: 18px; height: 18px; stroke: var(--ivory); fill: none; stroke-width: 1.6; }
+.hero-feature:hover i { background: rgba(255,255,255,.1); transform: translateX(3px); }
+/* Cream wipe into Intro — matches .scene-intro cream */
+.hero-wipe {
+  position: absolute; inset: 0; z-index: 6; pointer-events: none;
+  background: #fdf7f2;
+  transform: translate3d(0, calc((1 - clamp(0, (var(--progress) - .58) / .42, 1)) * 105%), 0);
+  will-change: transform;
+}
+.hero-wipe::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -48px; height: 48px;
+  background: linear-gradient(180deg, transparent, #fdf7f2);
+}
+.scroll-ind {
+  position: absolute; left: auto; right: 5.5vw; bottom: 26px; z-index: 4;
+  display: none; align-items: center; gap: 10px;
+  text-decoration: none; letter-spacing: .22em; text-transform: uppercase; font-size: 10px; color: var(--champagne);
+  text-shadow: 0 1px 10px rgba(7, 16, 24, .55);
+  opacity: calc(1 - var(--progress) * 3);
+  pointer-events: auto;
+}
+@media (min-width: 901px) {
+  .scroll-ind { display: flex; }
+}
+.scroll-ind i {
+  width: 18px; height: 28px; border: 1px solid var(--champagne); border-radius: 10px; position: relative;
+}
+.scroll-ind i::after {
+  content: ""; position: absolute; left: 50%; top: 6px; width: 3px; height: 6px; border-radius: 3px;
+  background: var(--blush); transform: translateX(-50%); animation: bob 1.5s ease-in-out infinite;
+}
+@keyframes bob { 50% { transform: translateX(-50%) translateY(7px); } }
+
+/* =========================================================
+   2. INTRO — editorial quiet room (scroll-scrubbed)
+   Motion principles: transform + opacity only, scrubbed --progress
+   ========================================================= */
+.scene-intro {
+  --intro-cream: #fdf7f2;
+  background: var(--intro-cream); color: var(--ink);
+}
+html.is-motion .scene-intro { height: 190vh; }
+html.is-motion .scene-intro .sticky {
+  position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden;
+}
+.intro-stage {
+  height: 100%;
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+  gap: clamp(24px, 4vw, 64px);
+  padding: calc(var(--nav-h) + 4vh) 6vw 6vh;
+  align-items: center;
+  position: relative;
+}
+.intro-mark {
+  position: absolute; right: 3vw; top: 14%;
+  font-family: var(--serif); font-size: clamp(5rem, 14vw, 12rem);
+  line-height: .8; letter-spacing: -.04em; color: rgba(7,16,24,.14);
+  pointer-events: none; user-select: none; z-index: 4;
+  mix-blend-mode: multiply;
+  transform: translate3d(0, calc(var(--progress) * -12%), 0);
+}
+.intro-copy { position: relative; z-index: 2; max-width: 36rem; }
+.intro-eye {
+  margin: 0 0 18px;
+  opacity: clamp(0, (var(--progress) - .02) / .12, 1);
+  transform: translate3d(0, calc((1 - clamp(0, (var(--progress) - .02) / .12, 1)) * 12px), 0);
+}
+.intro-title {
+  margin: 0 0 28px;
+  font-size: clamp(2.6rem, 5.2vw, 4.8rem);
+  line-height: 1.02;
+  letter-spacing: -.03em;
+}
+.intro-line {
+  display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em;
+}
+.intro-line > span {
+  display: block;
+  --show: clamp(0, (var(--progress) - var(--d, 0)) / .18, 1);
+  transform: translate3d(0, calc((1 - var(--show)) * 110%), 0);
+  will-change: transform;
+}
+.intro-rule {
+  width: min(120px, 40%); height: 1px; margin: 0 0 26px;
+  background: linear-gradient(90deg, var(--rose), var(--gold), transparent);
+  transform-origin: 0 50%;
+  transform: scaleX(clamp(0, (var(--progress) - .12) / .22, 1));
+}
+.intro-body { display: flex; flex-direction: column; gap: 18px; }
+.intro-p {
+  margin: 0; font-size: clamp(1rem, 1.15vw, 1.12rem); line-height: 1.7;
+  max-width: 34rem; color: rgba(7,16,24,.72);
+  --show: clamp(0, (var(--progress) - var(--d, 0)) / .2, 1);
+  opacity: var(--show);
+  transform: translate3d(0, calc((1 - var(--show)) * 28px), 0);
+  will-change: transform, opacity;
+}
+.intro-void {
+  --open: clamp(0, (var(--progress) - .2) / .58, 1);
+  position: relative; z-index: 1; height: min(74vh, 640px);
+  display: grid; place-items: center;
+  justify-items: center;
+}
+/* Photo seeds as a pearl, then circle-reveals open with scroll */
+.intro-reveal {
+  --ox: 0px; --oy: 0px;
+  position: relative;
+  width: min(92%, 460px);
+  aspect-ratio: 1;
+  margin: 0; padding: 0; border: 0;
+  border-radius: 50%;
+  display: block; overflow: hidden;
+  cursor: pointer; color: inherit;
+  background: radial-gradient(circle at 40% 35%, #f3e6d4, #d8b896 55%, #c9956c);
+  clip-path: circle(calc(1.85rem + var(--open) * 48.5%) at 50% 50%);
+  transform: translate3d(var(--ox), var(--oy), 0) scale(calc(.96 + var(--open) * .04));
+  box-shadow:
+    0 0 0 1px rgba(183, 110, 121, calc(.4 - var(--open) * .32)),
+    0 0 48px rgba(201, 149, 108, calc(.38 - var(--open) * .22)),
+    0 28px 70px rgba(7, 16, 24, calc(.08 + var(--open) * .1));
+  opacity: clamp(0, (var(--progress) - .02) / .14, 1);
+  will-change: clip-path, transform;
+  transition: none;
+}
+.intro-reveal::before {
+  content: ""; position: absolute; inset: -22px; border-radius: 50%; z-index: 2;
+  border: 1px solid rgba(183, 110, 121, .28);
+  pointer-events: none;
+  opacity: calc(1 - var(--open));
+  animation: orbPulse 3.2s ease-out infinite;
+}
+.intro-reveal img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: 50% 40%;
+  transform: scale(calc(1.18 - var(--open) * .18));
+  transform-origin: 55% 40%;
+  will-change: transform;
+  filter: saturate(calc(.9 + var(--open) * .1));
+}
+.intro-reveal-veil {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 42%, rgba(253, 247, 242, calc(.55 - var(--open) * .45)) 78%),
+    linear-gradient(180deg, transparent 48%, rgba(7, 16, 24, calc(.08 + var(--open) * .28)) 100%);
+}
+.intro-reveal-cap {
+  position: absolute; left: 12%; right: 12%; bottom: 14%; z-index: 2;
+  margin: 0; text-align: center;
+  font-family: var(--serif); font-size: clamp(1.15rem, 2vw, 1.55rem);
+  font-weight: 500; letter-spacing: -.01em; color: var(--ivory);
+  opacity: clamp(0, (var(--open) - .55) / .3, 1);
+  transform: translate3d(0, calc((1 - clamp(0, (var(--open) - .55) / .3, 1)) * 14px), 0);
+  text-shadow: 0 8px 24px rgba(7, 16, 24, .35);
+}
+.intro-whisper {
+  position: absolute; bottom: 4%;
+  margin: 0; font-size: 10px; letter-spacing: .32em; text-transform: uppercase;
+  color: rgba(7,16,24,.35);
+  opacity: clamp(0, (var(--progress) - .35) / .25, 1);
+  transform: translate3d(0, calc((1 - clamp(0, (var(--progress) - .35) / .25, 1)) * 10px), 0);
+}
+@keyframes orbPulse {
+  0% { transform: scale(.92); opacity: .7; }
+  70%, 100% { transform: scale(1.35); opacity: 0; }
+}
+
+/* =========================================================
+   3. DESTINATIONS — orbit out, settle into a readable grid
+   Details flip on hover/focus (not all at once on scroll)
+   ========================================================= */
+.scene-orbit { background: radial-gradient(ellipse at 50% 40%, #1a3144, var(--ink) 72%); }
+html.is-motion .scene-orbit { height: var(--travel, 280vh); }
+html.is-motion .scene-orbit .sticky {
+  position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden;
+  padding: 92px 3vw 20px; display: flex; flex-direction: column;
+}
+.orbit-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+html.is-motion .orbit-grid {
+  display: block; position: relative; flex: 1; min-height: 0;
+  perspective: 1400px;
+}
+.orbit-card { position: relative; aspect-ratio: 3/4; }
+html.is-motion .orbit-card {
+  position: absolute; left: 50%; top: 50%; aspect-ratio: auto;
+  width: var(--cw, 200px); height: var(--ch, 270px);
+  transform: translate(-50%, -50%) translate3d(var(--ox, 0px), var(--oy, 0px), 0) rotate(var(--rot, 0deg)) scale(var(--pop, 1));
+  will-change: transform;
+  transition: z-index 0s;
+}
+html.is-motion .orbit-card:hover,
+html.is-motion .orbit-card:focus-within { z-index: 400 !important; }
+.flip { height: 100%; border-radius: 18px; }
+html.is-motion .flip {
+  position: absolute; inset: 0; transform-style: preserve-3d;
+  transition: transform .65s var(--ease);
+  transform: rotateY(0deg);
+  box-shadow: 0 18px 40px rgba(0,0,0,.28);
+}
+html.is-motion .orbit-card:hover .flip,
+html.is-motion .orbit-card:focus-within .flip {
+  transform: rotateY(180deg);
+}
+.face { border-radius: 18px; overflow: hidden; height: 100%; }
+.face.back { display: none; }
+html.is-motion .face {
+  position: absolute; inset: 0; display: flex; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+}
+html.is-motion .face.back { transform: rotateY(180deg); }
+.face.front img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .8s var(--ease); }
+.orbit-card:hover .face.front img { transform: scale(1.06); }
+.dest-meta {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 36px 14px 14px; color: var(--ivory);
+  background: linear-gradient(transparent, rgba(7,16,24,.88));
+}
+.dest-meta h3 { font-size: 1.45rem; }
+.dest-meta p, .face.back p { margin: 0; }
+.face.back {
+  background: linear-gradient(180deg, #f7f1e7, #efe2d2); color: var(--ink);
+  padding: 14px; flex-direction: column; gap: 6px;
+}
+.face.back h3 { font-size: 1.35rem; }
+.face.back li { font-size: 12px; padding: 2px 0 2px 12px; position: relative; }
+.face.back li::before { content: ""; position: absolute; left: 0; top: .7em; width: 5px; height: 5px; border-radius: 50%; background: var(--rose); }
+.face.back .btn { margin-top: auto; padding: 10px 12px; }
+.orbit-hint {
+  margin: 0; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+  color: rgba(244,239,230,.45);
+}
+html.is-motion .orbit-hint {
+  opacity: clamp(0, (var(--progress) - .62) / .2, 1);
+}
+
+/* =========================================================
+   4. PACKAGES — stack, fan, then 3-column grid
+   ========================================================= */
+.scene-deck {
+  background:
+    radial-gradient(ellipse at 10% 0%, rgba(183,110,121,.18), transparent 42%),
+    var(--navy);
+}
+html.is-motion .scene-deck { height: var(--travel, 280vh); }
+html.is-motion .scene-deck .sticky {
+  position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden;
+  padding: 92px 3vw 20px; display: flex; flex-direction: column;
+}
+.deck { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+html.is-motion .deck { display: block; position: relative; flex: 1; perspective: 1300px; }
+.pkg {
+  background: rgba(10, 20, 30, .72);
+  border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+  box-shadow: 0 18px 40px rgba(0,0,0,.28);
+  display: flex; flex-direction: column;
+}
+html.is-motion .pkg {
+  position: absolute; left: 50%; top: 52%; width: var(--cw, 280px); height: var(--ch, 380px);
+  transform: translate(-50%, -50%) translate3d(var(--x, 0px), var(--y, 0px), var(--z, 0px)) rotate(var(--rot, 0deg)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  will-change: transform;
+}
+.card-tilt {
+  display: flex; flex-direction: column; height: 100%;
+  transform: rotateX(var(--hy, 0deg)) rotateY(var(--hx, 0deg));
+  transition: transform .25s var(--ease); transform-style: preserve-3d;
+}
+.pkg .media { aspect-ratio: 16/10; }
+html.is-motion .pkg .media { aspect-ratio: auto; flex: 1 1 40%; min-height: 0; }
+.pkg .media img { transition: transform 1s var(--ease); animation: ken 22s ease-in-out infinite alternate; }
+.pkg:hover .media img { transform: scale(1.1); animation-play-state: paused; }
+.pkg-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; }
+.pkg-body h3 { font-size: 1.45rem; }
+.meta { margin: 0; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--champagne); }
+.stars { margin: 0; color: var(--gold); font-size: 12px; letter-spacing: .12em; }
+.stars b { color: var(--ivory); font-weight: 500; letter-spacing: 0; margin-left: 6px; }
+.icons { display: flex; gap: 8px; }
+.icons li {
+  width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line);
+  display: grid; place-items: center; transition: transform .35s var(--ease);
+}
+.icons svg { width: 14px; height: 14px; stroke: var(--champagne); fill: none; stroke-width: 1.6; }
+.pkg:hover .icons li { transform: translateY(-3px) rotate(-8deg); }
+.pkg:hover .icons li:nth-child(2) { transition-delay: .04s; }
+.pkg:hover .icons li:nth-child(3) { transition-delay: .08s; }
+.pkg:hover .icons li:nth-child(4) { transition-delay: .12s; }
+.pkg-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
+.pkg-foot strong { font-family: var(--serif); font-size: 1.4rem; font-weight: 600; }
+.pkg .btn { padding: 10px 12px; }
+
+/* =========================================================
+   5. WHY — dense atelier grid + counters
+   ========================================================= */
+.scene-why {
+  background:
+    radial-gradient(ellipse 70% 55% at 18% 70%, rgba(201, 149, 108, .1), transparent 58%),
+    radial-gradient(ellipse 50% 45% at 88% 28%, rgba(183, 110, 121, .08), transparent 55%),
+    var(--ink);
+}
+html.is-motion .scene-why { height: var(--travel, 165vh); }
+html.is-motion .scene-why .sticky {
+  position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden;
+  padding: 88px 5vw 24px; display: flex; flex-direction: column; gap: 18px;
+}
+.scene-why .sec-head {
+  display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
+  gap: 20px 40px; align-items: end; max-width: none; margin-bottom: 0;
+}
+.scene-why .sec-head .why-lede {
+  margin: 0; max-width: 28rem; font-size: .98rem; font-weight: 300;
+  line-height: 1.65; color: rgba(244, 239, 230, .58);
+}
+.why-layout {
+  display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(220px, .48fr);
+  gap: clamp(16px, 2vw, 28px); align-items: stretch; flex: 1; min-height: 0;
+}
+.tunnel {
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+  gap: 12px; height: 100%; min-height: 0;
+}
+html.is-motion .tunnel {
+  perspective: none; transform-style: flat; height: 100%;
+}
+.tunnel-card {
+  position: relative; padding: clamp(20px, 2vw, 28px);
+  border-radius: 16px;
+  background: rgba(244, 239, 230, .055);
+  border: 1px solid rgba(231, 211, 176, .18);
+  box-shadow: 0 18px 40px rgba(0,0,0,.18);
+  display: flex; flex-direction: column; justify-content: flex-start; gap: 12px;
+  min-height: 0; overflow: hidden;
+}
+.tunnel-card::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(160deg, rgba(231, 211, 176, .1), transparent 50%),
+    radial-gradient(ellipse 80% 60% at 90% 100%, rgba(201, 149, 108, .12), transparent 55%);
+}
+.tunnel-card::after {
+  content: attr(data-n);
+  position: absolute; right: 4%; bottom: -4%; z-index: 0;
+  font-family: var(--serif); font-size: clamp(5.5rem, 10vw, 9rem);
+  line-height: .72; letter-spacing: -.06em; font-weight: 500;
+  color: rgba(244, 239, 230, .075); pointer-events: none; user-select: none;
+}
+html.is-motion .tunnel-card {
+  position: relative; left: auto; top: auto; width: auto;
+  transform: translate3d(0, var(--ty, 0px), 0) scale(var(--sc, 1));
+  opacity: var(--op, 1);
+  will-change: transform, opacity;
+}
+.tunnel-card .eyebrow { position: relative; z-index: 1; margin: 0; }
+.tunnel-card h3 {
+  position: relative; z-index: 1; margin: 4px 0 0;
+  font-size: clamp(1.5rem, 2.3vw, 2.15rem); max-width: 12ch;
+}
+.tunnel-card p {
+  position: relative; z-index: 1; margin: 4px 0 0;
+  color: rgba(244,239,230,.74); font-size: 1rem; line-height: 1.55;
+  max-width: 38ch;
+}
+.counters {
+  display: grid; grid-template-rows: auto 1fr 1fr 1fr; gap: 0;
+  height: 100%; min-height: 0;
+  padding: 4px 0 4px 8px;
+  border-left: 1px solid rgba(231, 211, 176, .18);
+}
+.counters-mark {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 0 14px; padding: 0 0 14px 18px;
+  font-size: 10px; letter-spacing: .28em; text-transform: uppercase;
+  color: rgba(231, 211, 176, .55); border-bottom: 1px solid rgba(231, 211, 176, .14);
+}
+.counters-mark i {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--ivory);
+  box-shadow: 0 0 0 6px rgba(201, 149, 108, .2), 0 0 18px rgba(201, 149, 108, .45);
+}
+.counters article {
+  display: flex; flex-direction: column; justify-content: center;
+  border-top: 1px solid rgba(231, 211, 176, .12);
+  padding: 14px 0 14px 18px; min-height: 0;
+}
+.counters article:first-of-type { border-top: 0; }
+.counters strong {
+  display: block; font-family: var(--serif); font-size: clamp(2.4rem, 3.6vw, 3.6rem);
+  font-weight: 500; line-height: .9; color: var(--champagne);
+}
+.counters span {
+  margin-top: 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(244, 239, 230, .55); max-width: 16ch; line-height: 1.45;
+}
+
+/* =========================================================
+   6. EXPERIENCES — horizontal scroll-jack
+   ========================================================= */
+.scene-exp { background: var(--ink); }
+html.is-motion .scene-exp { height: var(--travel, 400vh); }
+html.is-motion .scene-exp .sticky {
+  position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden;
+  padding: 92px 0 24px 4vw; display: flex; flex-direction: column;
+}
+.h-viewport { overflow-x: auto; height: 72vh; scroll-snap-type: x mandatory; }
+html.is-motion .h-viewport { overflow: hidden; height: auto; flex: 1; scroll-snap-type: none; }
+.h-track { display: flex; gap: 18px; height: 100%; padding-right: 8vw; will-change: transform; }
+.panel {
+  position: relative; flex: 0 0 min(74vw, 860px); height: 100%; scroll-snap-align: center;
+  border-radius: 22px; overflow: hidden; transform: scale(var(--ps, 1)); transform-origin: center center;
+}
+.panel .media { height: 100%; }
+.panel img { transform: translate3d(var(--px, 0px), 0, 0) scale(1.16); will-change: transform; }
+.panel-copy {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 48px 28px 26px; color: var(--ivory);
+  background: linear-gradient(transparent, rgba(7,16,24,.82));
+}
+.panel-copy h3 { font-size: clamp(2rem, 3vw, 3.2rem); }
+.panel-copy p { max-width: 36rem; margin: 8px 0 0; }
+
+/* =========================================================
+   7. GALLERY — depth explosion into a bento masonry
+   ========================================================= */
+.scene-gallery { background: var(--paper); color: var(--ink); }
+html.is-motion .scene-gallery { height: var(--travel, 220vh); }
+html.is-motion .scene-gallery .sticky {
+  position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden;
+  padding: 92px 3vw 22px; display: flex; flex-direction: column;
+}
+.masonry {
+  display: grid; gap: 12px; flex: 1; min-height: 420px;
+  grid-template-columns: 1.15fr 1fr 1fr .9fr;
+  grid-template-rows: 1.15fr .85fr .8fr;
+  perspective: 1200px;
+}
+.g-item { position: relative; border-radius: 16px; overflow: hidden; min-height: 140px; }
+html.is-motion .g-item {
+  transform: translate3d(calc(var(--ox, 0) * 1px * (1 - var(--progress))), calc(var(--oy, 0) * 1px * (1 - var(--progress))), calc((1 - var(--progress)) * -520px))
+    rotate(calc(var(--rot, 0) * 1deg * (1 - var(--progress))))
+    scale(calc(.42 + var(--progress) * .58));
+  will-change: transform;
+}
+.g-item .frame {
+  height: 100%; transform: rotateX(var(--hy, 0deg)) rotateY(var(--hx, 0deg));
+  transition: transform .25s var(--ease);
+}
+.g-item img { height: 100%; transition: transform 1s var(--ease); }
+.g-item:hover img { transform: scale(1.1); }
+.g-item figcaption {
+  position: absolute; left: 12px; right: 12px; bottom: 12px; color: var(--ivory);
+  font-family: var(--serif); font-size: 1.25rem; opacity: 0; transform: translateY(8px);
+  transition: opacity .4s var(--ease), transform .4s var(--ease);
+  text-shadow: 0 8px 24px rgba(0,0,0,.5);
+}
+.g-item:hover figcaption, .g-item:focus-within figcaption { opacity: 1; transform: none; }
+.g1 { grid-column: 1; grid-row: 1 / span 2; }
+.g2 { grid-column: 2; grid-row: 1; }
+.g3 { grid-column: 3 / span 2; grid-row: 1; }
+.g4 { grid-column: 2; grid-row: 2; }
+.g5 { grid-column: 3; grid-row: 2 / span 2; }
+.g6 { grid-column: 4; grid-row: 2; }
+.g7 { grid-column: 1; grid-row: 3; }
+.g8 { grid-column: 2; grid-row: 3; }
+.g9 { grid-column: 4; grid-row: 3; }
+
+/* =========================================================
+   8. ITINERARY — SVG route draws with the scroll
+   ========================================================= */
+.scene-route { background: var(--ivory); color: var(--ink); padding: 10vh 0; }
+.route-wrap { position: relative; max-width: 1080px; margin: 0 auto; padding: 0 6vw; }
+.route-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.route-ghost, .route-draw { fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.route-ghost { stroke: rgba(183, 110, 121, .35); stroke-width: 2; stroke-dasharray: 2 9; }
+html.is-motion .route-draw {
+  stroke: #9a6248; stroke-width: 2.4;
+  stroke-dasharray: var(--len, 1600);
+  stroke-dashoffset: calc(var(--len, 1600) * (1 - var(--progress)));
+}
+.route-draw { stroke: #9a6248; stroke-width: 2.4; }
+.miles { position: relative; display: flex; flex-direction: column; gap: 54px; padding: 20px 0 10px; }
+.mile { width: min(440px, 46%); background: rgba(255,255,255,.55); border: 1px solid rgba(156, 98, 72, .2); border-radius: 16px; padding: 16px 18px; }
+.mile:nth-child(odd) { margin-right: auto; --from: -70; --spin: -14; }
+.mile:nth-child(even) { margin-left: auto; --from: 70; --spin: 14; }
+html.is-motion .mile {
+  opacity: var(--in, 0);
+  transform: translate3d(calc((1 - var(--in, 0)) * var(--from) * 1px), 18px, 0) rotateY(calc((1 - var(--in, 0)) * var(--spin) * 1deg));
+}
+.mile small { letter-spacing: .18em; text-transform: uppercase; font-size: 11px; color: #8d5348; }
+.mile h3 { margin: 4px 0; font-size: 1.8rem; }
+.mile p { margin: 0; }
+
+/* =========================================================
+   9. TESTIMONIALS — infinite letter marquee (no pin)
+   ========================================================= */
+.scene-reel {
+  background:
+    radial-gradient(ellipse 70% 50% at 18% 20%, rgba(183, 110, 121, .12), transparent 55%),
+    radial-gradient(ellipse 60% 45% at 88% 70%, rgba(201, 149, 108, .1), transparent 50%),
+    linear-gradient(180deg, #0a141e 0%, #071018 100%);
+  padding: calc(var(--nav-h) + 36px) 0 72px;
+}
+.scene-reel .sec-head { padding: 0 4vw; margin-bottom: 36px; }
+.notes-stage {
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.notes-stage.is-dragging { cursor: grabbing; }
+.notes-stage::before,
+.notes-stage::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: min(10vw, 96px); z-index: 2;
+  pointer-events: none;
+}
+.notes-stage::before {
+  left: 0;
+  background: linear-gradient(90deg, #071018 12%, transparent);
+}
+.notes-stage::after {
+  right: 0;
+  background: linear-gradient(270deg, #071018 12%, transparent);
+}
+.notes-rail {
+  display: flex;
+  width: max-content;
+  gap: 24px;
+  padding: 8px 0 12px;
+  will-change: transform;
+  transform: translate3d(var(--tx, 0px), 0, 0);
+}
+.note {
+  position: relative;
+  flex: 0 0 min(380px, 78vw);
+  display: flex; flex-direction: column; gap: 22px;
+  min-height: 300px;
+  padding: 36px 30px 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .35), transparent 28%),
+    linear-gradient(165deg, #f8f2e8 0%, #efe3d2 100%);
+  color: var(--ink);
+  border: 1px solid rgba(201, 149, 108, .38);
+  border-radius: 2px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .55) inset,
+    0 22px 50px rgba(0, 0, 0, .28);
+  overflow: hidden;
+  transition: transform .45s var(--ease), box-shadow .45s var(--ease);
+}
+.note:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .55) inset,
+    0 28px 56px rgba(0, 0, 0, .36);
+}
+.note::before {
+  content: "“";
+  position: absolute; top: 10px; left: 18px;
+  font-family: var(--display); font-size: clamp(5.5rem, 10vw, 7.5rem);
+  line-height: .72; font-weight: 500;
+  color: rgba(183, 110, 121, .22);
+  pointer-events: none; user-select: none;
+}
+.note-place {
+  position: relative; z-index: 1; margin: 0;
+  font-size: 10px; font-weight: 500; letter-spacing: .28em;
+  text-transform: uppercase; color: #8d5348;
+}
+.note blockquote {
+  position: relative; z-index: 1;
+  margin: 0; flex: 1;
+  font-family: var(--display); font-style: italic; font-weight: 500;
+  font-size: clamp(1.35rem, 2.2vw, 1.7rem);
+  line-height: 1.28; letter-spacing: -.01em;
+  color: #1a1410;
+}
+.note footer {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; gap: 14px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(141, 83, 72, .18);
+  margin-top: auto;
+}
+.note footer img {
+  width: 48px; height: 48px; border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(201, 149, 108, .55);
+  box-shadow: 0 6px 16px rgba(28, 18, 14, .18);
+  pointer-events: none;
+}
+.note footer h3 {
+  margin: 0; font-family: var(--sans); font-size: 13px;
+  font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+}
+.note footer .stars {
+  margin: 4px 0 0; color: #b07648; font-size: 11px; letter-spacing: .14em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .notes-stage { cursor: auto; overflow-x: auto; overflow-y: hidden; }
+  .notes-rail { transform: none !important; padding-inline: 4vw; }
+}
+
+/* =========================================================
+   10. PRICING — staggered elastic rise
+   ========================================================= */
+.scene-price { background: var(--paper); color: var(--ink); }
+html.is-motion .scene-price { height: var(--travel, 175vh); }
+html.is-motion .scene-price .sticky {
+  position: sticky; top: 0; min-height: 100vh; min-height: 100dvh;
+  padding: 92px 4vw 32px; display: flex; flex-direction: column; justify-content: center;
+}
+.tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
+html.is-motion .tier {
+  transform: translate3d(0, var(--y, 40px), 0) scale(var(--sc, 1));
+}
+.tier {
+  position: relative; border-radius: 22px; padding: 22px 20px 20px;
+  background: #fffaf3; border: 1px solid rgba(28, 18, 14, .08);
+  box-shadow: 0 16px 40px rgba(60, 30, 20, .06);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.tier header p { margin: 0; letter-spacing: .16em; text-transform: uppercase; font-size: 12px; }
+.tier .sum { font-family: var(--serif); font-size: 3rem; line-height: .9; }
+.tier .sum small { font-size: 1rem; letter-spacing: 0; }
+.tier li { padding: 6px 0; border-top: 1px solid rgba(28,18,14,.08); font-size: 14px; }
+.tier .btn { margin-top: auto; }
+.tier-gold {
+  background:
+    linear-gradient(#fffaf3, #fffaf3) padding-box,
+    linear-gradient(120deg, #b76e79, #f3e2c4, #fff, #c9956c, #b76e79) border-box;
+  border: 1.5px solid transparent; background-size: 100% 100%, 240% 100%;
+  animation: sheen 4.8s linear infinite;
+  transform: translateY(-12px);
+  box-shadow: 0 24px 50px rgba(183, 110, 121, .18);
+}
+@keyframes sheen { to { background-position: 0 0, 220% 0; } }
+.tier-ink { background: var(--ink); color: var(--ivory); }
+.tier-ink li { border-top-color: rgba(231,211,176,.18); }
+.fine { margin: 16px 0 0; font-size: 13px; }
+
+/* =========================================================
+   11. CONTACT — circle clip-path curtain
+   ========================================================= */
+.scene-plan { background: var(--ink); }
+html.is-motion .scene-plan { height: var(--travel, 190vh); }
+html.is-motion .scene-plan .sticky {
+  position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden;
+}
+.plan-intro {
+  position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; text-align: center; padding: 24px;
+}
+.plan-intro h2 { font-size: clamp(3rem, 7vw, 6.4rem); }
+html.is-motion .plan-intro {
+  opacity: calc(1 - max(0, var(--progress) - .08) * 2.2);
+  transform: translateY(calc(var(--progress) * -40px));
+}
+.curtain {
+  position: absolute; inset: 0; z-index: 1; display: grid; place-items: center;
+  background: var(--wash, #123);
+}
+html.is-motion .curtain { clip-path: circle(calc(6% + var(--progress) * 130%) at 50% 46%); }
+.curtain .bg { position: absolute; inset: 0; }
+.curtain .bg::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(7,16,24,.25), rgba(7,16,24,.72));
+}
+.plan-card {
+  position: relative; z-index: 2; width: min(680px, calc(100% - 32px));
+  padding: 22px; border-radius: 22px;
+  background: rgba(7, 16, 24, .55);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  box-shadow: 0 30px 80px rgba(0,0,0,.35);
+}
+html.is-motion .plan-card {
+  opacity: clamp(0, (var(--progress) - .32) / .28, 1);
+  transform: translateY(calc((1 - clamp(0, (var(--progress) - .32) / .3, 1)) * 28px));
+}
+.plan-card h2 { font-size: clamp(2.2rem, 4vw, 3.4rem); margin-bottom: 12px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { position: relative; }
+.field.wide { grid-column: 1 / -1; }
+.field input, .field select, .field textarea {
+  width: 100%; background: rgba(255,255,255,.05);
+  border: 1px solid rgba(231,211,176,.32); border-radius: 12px;
+  padding: 22px 14px 8px; outline: none;
+  transition: border-color .25s, box-shadow .25s;
+}
+.field textarea { min-height: 110px; resize: vertical; }
+.field span {
+  position: absolute; left: 14px; top: 16px; font-size: 14px; color: rgba(244,239,230,.7);
+  pointer-events: none; transform-origin: left top; transition: transform .25s var(--ease), color .25s;
+}
+.field input:focus + span, .field input:not(:placeholder-shown) + span,
+.field textarea:focus + span, .field textarea:not(:placeholder-shown) + span,
+.field select + span {
+  transform: translateY(-10px) scale(.78); color: var(--champagne);
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201, 149, 108, .25);
+}
+.field .err { display: none; color: #ffb4be; font-size: 12px; margin-top: 4px; }
+.field.is-invalid input, .field.is-invalid select, .field.is-invalid textarea { border-color: #e07a8a; }
+.field.is-invalid .err { display: block; }
+.form-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.success { text-align: center; padding: 24px 8px 8px; position: relative; }
+.success h3 { font-size: 3rem; }
+.hearts { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.heart-bit {
+  position: absolute; top: 40%; width: 12px; height: 12px;
+  background: #e7b7b4; transform: rotate(45deg);
+  animation: burst 1.5s var(--ease) forwards;
+}
+.heart-bit::before, .heart-bit::after {
+  content: ""; position: absolute; width: 12px; height: 12px; border-radius: 50%; background: inherit;
+}
+.heart-bit::before { left: -6px; }
+.heart-bit::after { top: -6px; }
+@keyframes burst {
+  to { transform: translate(var(--dx), var(--dy)) rotate(45deg) scale(.4); opacity: 0; }
+}
+
+/* =========================================================
+   12. FOOTER
+   ========================================================= */
+.footer { position: relative; background: #050b12; color: var(--ivory); padding: 0 0 28px; }
+.waves { height: 90px; overflow: hidden; line-height: 0; }
+.waves svg { width: 200%; height: 90px; display: block; animation: waveShift 9s linear infinite; }
+.waves path { fill: rgba(183, 110, 121, .22); }
+.waves path.w2 { fill: rgba(231, 211, 176, .16); }
+@keyframes waveShift { to { transform: translateX(-50%); } }
+.foot-grid {
+  display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.3fr; gap: 24px;
+  padding: 10px 6vw 24px;
+}
+.footer h3 { font-size: 1.4rem; margin-bottom: 8px; }
+.footer a { text-decoration: none; display: inline-block; padding: 3px 0; }
+.footer a:hover { color: var(--champagne); }
+.news { display: flex; gap: 8px; margin-top: 8px; }
+.news input {
+  flex: 1; background: transparent; border: 0; border-bottom: 1px solid var(--line); padding: 10px 0;
+}
+.socials { display: flex; gap: 10px; margin-top: 16px; }
+.socials a {
+  width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line);
+  display: grid; place-items: center; transition: transform .35s var(--ease);
+}
+.socials a:hover { transform: translateY(-5px) scale(1.06); }
+.socials svg { width: 16px; height: 16px; fill: none; stroke: var(--champagne); stroke-width: 1.6; }
+.legal {
+  display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 16px 6vw 0; border-top: 1px solid rgba(231,211,176,.14); font-size: 13px; color: rgba(244,239,230,.6);
+}
+.to-top {
+  position: fixed; left: 18px; bottom: 18px; z-index: 150;
+  border: 1px solid var(--line); background: rgba(7,16,24,.7); color: var(--ivory);
+  backdrop-filter: blur(10px); border-radius: 999px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 8px; letter-spacing: .14em; text-transform: uppercase; font-size: 10px;
+  opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity .3s, transform .3s var(--ease);
+}
+.to-top.is-on { opacity: 1; pointer-events: auto; }
+.to-top .rocket { display: inline-block; color: var(--blush); transition: transform .45s var(--ease); }
+.to-top:hover .rocket { transform: translateY(-8px) scale(1.15); }
+.wa {
+  position: fixed; right: 18px; bottom: 18px; z-index: 150;
+  width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center;
+  background: linear-gradient(140deg, #e7d3b0, #b76e79); color: #1c120e;
+  box-shadow: 0 12px 30px rgba(183,110,121,.35); text-decoration: none;
+}
+.wa svg { width: 26px; height: 26px; fill: none; stroke: #1c120e; stroke-width: 1.7; }
+.wa::after {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%;
+  border: 1px solid rgba(231, 179, 170, .7); animation: pulse 2.2s ease-out infinite;
+}
+@keyframes pulse { to { transform: scale(1.25); opacity: 0; } }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .orbit-grid { grid-template-columns: repeat(3, 1fr); }
+  .deck, .tiers { grid-template-columns: 1fr 1fr; }
+  .tier-gold { transform: none; }
+  .foot-grid { grid-template-columns: 1fr 1fr; }
+  .why-layout { grid-template-columns: minmax(0, 1.55fr) minmax(200px, .5fr); }
+  .masonry { grid-template-columns: 1fr 1fr; grid-template-rows: none; }
+  .g1, .g2, .g3, .g4, .g5, .g6, .g7, .g8, .g9 { grid-column: auto; grid-row: auto; min-height: 220px; }
+  .g1, .g3, .g5 { min-height: 300px; }
+}
+@media (max-width: 980px) {
+  .intro-stage { grid-template-columns: 1fr; padding-bottom: 8vh; gap: 28px; }
+  .intro-void { height: min(58vw, 380px); order: -1; }
+  .intro-reveal { width: min(100%, 340px); }
+  .intro-mark { top: auto; bottom: 4%; font-size: clamp(4rem, 22vw, 7rem); opacity: .55; }
+}
+@media (max-width: 860px) {
+  .scene-why .sec-head { grid-template-columns: 1fr; gap: 12px; }
+  .why-layout { grid-template-columns: 1fr; gap: 20px; }
+  .tunnel { min-height: 400px; }
+  .counters {
+    grid-template-columns: repeat(3, 1fr); grid-template-rows: auto auto;
+    border-left: 0; border-top: 1px solid rgba(231, 211, 176, .18);
+    padding: 16px 0 0; gap: 8px 16px;
+  }
+  .counters-mark { grid-column: 1 / -1; margin: 0; padding: 0 0 10px; border-bottom: 0; }
+  .counters article { border-top: 0; padding: 8px 0; }
+  .nav-toggle { display: block; margin-left: auto; }
+  .nav-menu {
+    display: none; position: absolute; top: 100%; left: 0; right: 0;
+    flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 6vw 22px;
+    margin-left: 0;
+    background: rgba(7, 16, 24, .96); backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(231, 211, 176, .14);
+  }
+  .nav.is-open .nav-menu { display: flex; }
+  .nav-menu .btn-nav { display: none; margin-left: 0; margin-top: 10px; }
+  .nav.is-open .nav-menu .btn-nav { display: inline-flex; }
+  .hero-film { clip-path: inset(0 0 42% 0); transform-origin: 50% 20%; }
+  html.is-motion .hero-film { clip-path: inset(0 0 calc((1 - var(--open)) * 42%) 0); }
+  .hero-panel {
+    width: 100%; height: auto; min-height: 58%;
+    max-width: none;
+    padding: calc(var(--nav-h) + 24px) 6vw max(36px, env(safe-area-inset-bottom, 0px) + 24px);
+    background: linear-gradient(180deg, rgba(7,16,24,.88) 55%, transparent);
+    justify-content: flex-start;
+  }
+  .hero-feature { right: 18px; bottom: 18px; }
+  .note { flex-basis: min(340px, 86vw); }
+  .mile, .mile:nth-child(even) { width: min(100%, 520px); margin-left: 0; --from: 28; }
+  .mile:nth-child(odd) { --from: -28; }
+  .form-grid { grid-template-columns: 1fr; }
+  .field.wide { grid-column: auto; }
+}
+@media (max-width: 640px) {
+  .deck, .tiers, .orbit-grid { grid-template-columns: 1fr; }
+  .tunnel { grid-template-columns: 1fr; min-height: 0; }
+  .counters { grid-template-columns: 1fr; }
+  .hero-brand { font-size: clamp(2.5rem, 12vw, 3.5rem); }
+  .hero-display .hero-line--soft { font-size: clamp(.95rem, 3.8vw, 1.15rem); letter-spacing: .28em; }
+  .hero-display .hero-line--strong { font-size: clamp(2rem, 9vw, 2.7rem); }
+  .hero-mast { margin-bottom: 22px; gap: 0 12px; }
+  .form-actions { flex-direction: column; align-items: stretch; }
+  .foot-grid { grid-template-columns: 1fr; }
+}
+
+/* Narrow screens leave the heavy pinned layouts and fall back to readable stacks */
+html.is-motion .scene.unpin { height: auto !important; }
+html.is-motion .scene.unpin > .sticky {
+  position: relative !important; height: auto !important; overflow: visible !important; display: block;
+}
+html.is-motion .scene.unpin .orbit-grid { display: grid; height: auto; }
+html.is-motion .scene.unpin .deck { display: grid; height: auto; }
+html.is-motion .scene.unpin .pkg,
+html.is-motion .scene.unpin .orbit-card,
+html.is-motion .scene.unpin .g-item,
+html.is-motion .scene.unpin .tier {
+  position: relative !important; left: auto !important; top: auto !important;
+  width: auto !important; height: auto !important; aspect-ratio: 3/4;
+  transform: none !important; opacity: 1 !important; filter: none !important;
+}
+html.is-motion .scene.unpin .pkg { aspect-ratio: auto; }
+html.is-motion .scene.unpin .face.back { display: none; }
+html.is-motion .scene.unpin .masonry { height: auto; display: grid; }
+
+/* Readable layout if motion is reduced — pins and hidden starts never apply */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation: none !important; transition: none !important;
+  }
+  .scene { height: auto !important; }
+  .sticky { position: relative !important; height: auto !important; overflow: visible !important; }
+  .curtain { clip-path: none !important; }
+  .plan-card, .plan-intro, .intro-p, .intro-line > span, .intro-eye, .intro-rule, .intro-reveal, .intro-reveal-cap, .intro-whisper, .intro-mark, .mile, .hero-panel, .hero-film, .hero-wipe, .hero-feature { opacity: 1 !important; transform: none !important; filter: none !important; clip-path: none !important; }
+  .intro-reveal { clip-path: circle(48% at 50% 50%) !important; border-radius: 50%; }
+  .intro-reveal img { transform: none !important; }
+  .hero-video { display: none !important; }
+  .intro-reveal::before { animation: none !important; opacity: 0 !important; }
+  .cursor { display: none !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="progress" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><i></i></div>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Preloader -->
+<div class="preloader" id="preloader" role="status" aria-live="polite" aria-label="Opening Elysian Escapes">
+  <div class="pre-mark">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <circle class="pre-ring" cx="32" cy="32" r="28" fill="none" stroke="rgba(231,211,176,.35)" stroke-width="1" stroke-dasharray="8 10"></circle>
+      <path class="pre-heart" d="M32 52s-14.5-8.7-20-16.4C7.6 29.2 8 20.2 15.2 16.4c5.2-2.7 10.6.2 14.2 6.2 1 .2 1.6.2 2.6 0 3.6-6 9-8.9 14.2-6.2 7.2 3.8 7.6 12.8 3.2 19.2C46.5 43.3 32 52 32 52z"></path>
+    </svg>
+    <p>Elysian</p>
+  </div>
+</div>
+
+<!-- Navbar -->
+<header class="nav" id="nav">
+  <a class="logo" href="#top" aria-label="Elysian Escapes, home">
+    <span class="logo-mark" aria-hidden="true">E</span>
+    <span><strong>Elysian Escapes</strong></span>
+  </a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Menu"><span></span></button>
+  <nav id="nav-menu" class="nav-menu" aria-label="Primary">
+    <a href="#destinations">Destinations</a>
+    <a href="#packages">Journeys</a>
+    <a href="#experiences">Experiences</a>
+    <a href="#stories">Stories</a>
+    <a href="#pricing">Tiers</a>
+    <a class="btn btn-solid magnetic btn-nav" href="#plan">Plan My Honeymoon</a>
+  </nav>
+</header>
+
+<main id="main">
+  <!-- ===================== HERO — couple film + expand/wipe ===================== -->
+  <section class="scene scene-hero" data-scene="hero" data-pin id="top" aria-label="Introduction">
+    <div class="sticky">
+      <div class="hero-stage">
+        <div class="hero-film" aria-hidden="false">
+          <img class="hero-poster" src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1600&q=80" alt="" width="1600" height="900" fetchpriority="high" aria-hidden="true">
+          <video id="hero-video" class="hero-video" muted playsinline loop preload="metadata" poster="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1600&q=80" aria-label="A couple walking together on a quiet beach">
+            <source src="https://videos.pexels.com/video-files/5677251/5677251-hd_1920_1080_25fps.mp4" type="video/mp4">
+          </video>
+          <div class="hero-film-veil" aria-hidden="true"></div>
+        </div>
+        <div class="hero-panel">
+          <div class="hero-mast">
+            <span class="hero-index" aria-hidden="true">Atelier</span>
+            <span class="hero-rail" aria-hidden="true"></span>
+            <div class="hero-mast-copy">
+              <h1 class="hero-brand" aria-label="Elysian Escapes">
+                <span class="hero-brand-a" aria-hidden="true"><span class="hero-cap">E</span>lysian</span>
+                <span class="hero-brand-b" aria-hidden="true"><span class="hero-cap">E</span>scapes<svg class="hero-flourish" viewBox="0 0 220 10" preserveAspectRatio="none"><path d="M2 7.2 C 38 3.2, 72 2.4, 110 3.8 S 180 8.5, 218 5.2"/></svg></span>
+              </h1>
+              <p class="hero-vol">Vol. 01 · Honeymoons for two</p>
+            </div>
+          </div>
+          <p class="hero-display" aria-label="Begin your forever.">
+            <span class="hero-line hero-line--soft">Begin</span>
+            <span class="hero-line hero-line--strong">your forever<span class="dot" aria-hidden="true">.</span></span>
+          </p>
+          <div class="hero-lead">
+            <span class="hero-lead-rule" aria-hidden="true"></span>
+            <p>Private shores, quiet cities, and the long way home — arranged around the two of you, and no one else.</p>
+          </div>
+          <div class="cta-row">
+            <a class="btn btn-solid magnetic" href="#plan">Plan My Honeymoon <span aria-hidden="true">→</span></a>
+            <a class="hero-text-link magnetic" href="#packages">See the journeys <i aria-hidden="true"></i></a>
+          </div>
+          <p class="hero-aside">One planner. Suites we have slept in. Tables held under our name.</p>
+        </div>
+        <a class="hero-feature" href="#packages">
+          <span><small>On film</small><strong>The slow shore</strong></span>
+          <i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></i>
+        </a>
+        <div class="hero-wipe" aria-hidden="true"></div>
+        <a class="scroll-ind" href="#intro"><i aria-hidden="true"></i> Scroll</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== INTRO — editorial quiet room ===================== -->
+  <section class="scene scene-intro light" data-scene="intro" data-pin id="intro" aria-labelledby="intro-title">
+    <div class="sticky">
+      <div class="intro-stage">
+        <p class="intro-mark" aria-hidden="true">Quiet</p>
+        <div class="intro-copy">
+          <p class="eyebrow intro-eye">After the vows</p>
+          <h2 class="intro-title" id="intro-title">
+            <span class="intro-line" style="--d:0.06"><span>The wedding is loud.</span></span>
+            <span class="intro-line" style="--d:0.16"><span>The days after should not be.</span></span>
+          </h2>
+          <div class="intro-rule" aria-hidden="true"></div>
+          <div class="intro-body">
+            <p class="intro-p" style="--d:0.28">Elysian Escapes is a honeymoon atelier. We hold the suite, the table, and the hour the light is right — then we leave you alone in it.</p>
+            <p class="intro-p" style="--d:0.42">You will have one planner. They have already walked the jetty, sent a cake back, and know which villa actually faces west.</p>
+            <p class="intro-p" style="--d:0.48">From a lagoon in the Maldives to a houseboat in Kerala, nothing here is a crowded departure or a transfer you discover at midnight.</p>
+          </div>
+        </div>
+        <div class="intro-void">
+          <button class="intro-reveal" id="intro-orb" type="button" aria-label="Continue to destinations">
+            <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=80" alt="Infinity pool above a tropical bay at soft dusk" width="1200" height="1200" loading="lazy" decoding="async">
+            <span class="intro-reveal-veil" aria-hidden="true"></span>
+            <span class="intro-reveal-cap">The hour the light is right</span>
+          </button>
+          <p class="intro-whisper">Stay a while</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== DESTINATIONS ===================== -->
+  <section class="scene scene-orbit" data-scene="orbit" data-pin id="destinations" aria-labelledby="dest-title">
+    <div class="sticky">
+      <header class="sec-head">
+        <p class="eyebrow">01 — Destinations</p>
+        <h2 class="split" id="dest-title">Ten shores worth leaving for</h2>
+        <p class="orbit-hint">Hover a shore for the itinerary</p>
+      </header>
+      <div class="orbit-grid" id="orbit">
+        <!-- Cards: scroll orbits out, settles into a grid; hover flips to details. -->
+        <article class="orbit-card" tabindex="0" style="--wash:linear-gradient(160deg,#08343a,#c9956c)">
+          <div class="flip">
+            <div class="face front media">
+              <img src="https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=900&q=80" alt="Aerial view of overwater villas linked by a boardwalk in the Maldives" loading="lazy" width="900" height="1200">
+              <div class="dest-meta"><h3>Maldives</h3><p>From $6,480</p></div>
+            </div>
+            <div class="face back">
+              <p class="eyebrow">7 nights</p><h3>Maldives</h3>
+              <ul><li>Overwater villa, west-facing</li><li>Sunset dhoni for two</li><li>A reef morning, unhurried</li></ul>
+              <button class="btn btn-ink magnetic" type="button" data-book="Maldives">Book Now</button>
+            </div>
+          </div>
+        </article>
+        <article class="orbit-card" tabindex="0" style="--wash:linear-gradient(160deg,#1d3a28,#d4a574)">
+          <div class="flip">
+            <div class="face front media">
+              <img src="https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?auto=format&fit=crop&w=900&q=80" alt="Tanah Lot temple on a rock in the sea at sunset, Bali" loading="lazy" width="900" height="1200">
+              <div class="dest-meta"><h3>Bali</h3><p>From $4,260</p></div>
+            </div>
+            <div class="face back">
+              <p class="eyebrow">8 nights</p><h3>Bali</h3>
+              <ul><li>Private pool villa in Ubud</li><li>Dawn at the temple rock</li><li>A picnic above the rice</li></ul>
+              <button class="btn btn-ink magnetic" type="button" data-book="Bali">Book Now</button>
+            </div>
+          </div>
+        </article>
+        <article class="orbit-card" tabindex="0" style="--wash:linear-gradient(160deg,#1c3d66,#e7d3b0)">
+          <div class="flip">
+            <div class="face front media">
+              <img src="https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?auto=format&fit=crop&w=900&q=80" alt="Blue domes and whitewashed cliffs above the Santorini caldera" loading="lazy" width="900" height="1200">
+              <div class="dest-meta"><h3>Santorini</h3><p>From $5,140</p></div>
+            </div>
+            <div class="face back">
+              <p class="eyebrow">6 nights</p><h3>Santorini</h3>
+              <ul><li>Caldera suite, no shared wall</li><li>Catamaran after four</li><li>A vineyard with a view</li></ul>
+              <button class="btn btn-ink magnetic" type="button" data-book="Santorini">Book Now</button>
+            </div>
+          </div>
+        </article>
+        <article class="orbit-card" tabindex="0" style="--wash:linear-gradient(160deg,#2a241c,#c4a574)">
+          <div class="flip">
+            <div class="face front media">
+              <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=900&q=80" alt="The Eiffel Tower seen from the Seine at dusk" loading="lazy" width="900" height="1200">
+              <div class="dest-meta"><h3>Paris</h3><p>From $4,890</p></div>
+            </div>
+            <div class="face back">
+              <p class="eyebrow">5 nights</p><h3>Paris</h3>
+              <ul><li>Left Bank suite</li><li>A private hour after closing</li><li>Champagne on the river</li></ul>
+              <button class="btn btn-ink magnetic" type="button" data-book="Paris">Book Now</button>
+            </div>
+          </div>
+        </article>
+        <article class="orbit-card" tabindex="0" style="--wash:linear-gradient(160deg,#243246,#e7d3b0)">
+          <div class="flip">
+            <div class="face front media">
+              <img src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=900&q=80" alt="A wooden cabin on a green alpine lake beneath rocky peaks" loading="lazy" width="900" height="1200">
+              <div class="dest-meta"><h3>Swiss Alps</h3><p>From $5,760</p></div>
+            </div>
+            <div class="face back">
+              <p class="eyebrow">6 nights</p><h3>Swiss Alps</h3>
+              <ul><li>Chalet with a real fire</li><li>Glacier train, window seats</li><li>Fondue once, done properly</li></ul>
+              <button class="btn btn-ink magnetic" type="button" data-book="Swiss Alps">Book Now</button>
+            </div>
+          </div>
+        </article>
+        <article class="orbit-card" tabindex="0" style="--wash:linear-gradient(160deg,#0e3a4a,#d4b483)">
+          <div class="flip">
+            <div class="face front media">
+              <img src="https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=900&q=80" alt="Aerial view of the Burj Al Arab and the Dubai coastline" loading="lazy" width="900" height="1200">
+              <div class="dest-meta"><h3>Dubai</h3><p>From $4,520</p></div>
+            </div>
+            <div class="face back">
+              <p class="eyebrow">5 nights</p><h3>Dubai</h3>
+              <ul><li>A suite that faces the gulf</li><li>Desert table at dusk</li><li>One morning on the water</li></ul>
+              <button class="btn btn-ink magnetic" type="button" data-book="Dubai">Book Now</button>
+            </div>
+          </div>
+        </article>
+        <article class="orbit-card" tabindex="0" style="--wash:linear-gradient(160deg,#1c3d28,#d7c4a0)">
+          <div class="flip">
+            <div class="face front media">
+              <img src="https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=900&q=80" alt="A Kerala houseboat with a woven roof on a wide backwater" loading="lazy" width="900" height="1200">
+              <div class="dest-meta"><h3>Kerala</h3><p>From $3,240</p></div>
+            </div>
+            <div class="face back">
+              <p class="eyebrow">7 nights</p><h3>Kerala</h3>
+              <ul><li>Houseboat, crew of three</li><li>Ayurvedic ritual for two</li><li>Spice garden, late morning</li></ul>
+              <button class="btn btn-ink magnetic" type="button" data-book="Kerala">Book Now</button>
+            </div>
+          </div>
+        </article>
+        <article class="orbit-card" tabindex="0" style="--wash:linear-gradient(160deg,#0d3b3a,#8fbfb8)">
+          <div class="flip">
+            <div class="face front media">
+              <img src="https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?auto=format&fit=crop&w=900&q=80" alt="Limestone cliffs rising from turquoise water with longtail boats, Phuket" loading="lazy" width="900" height="1200">
+              <div class="dest-meta"><h3>Phuket</h3><p>From $3,980</p></div>
+            </div>
+            <div class="face back">
+              <p class="eyebrow">6 nights</p><h3>Phuket</h3>
+              <ul><li>Pool villa above the cape</li><li>Longtail to a quiet cove</li><li>Dinner on the sand</li></ul>
+              <button class="btn btn-ink magnetic" type="button" data-book="Phuket">Book Now</button>
+            </div>
+          </div>
+        </article>
+        <article class="orbit-card" tabindex="0" style="--wash:linear-gradient(160deg,#3a2a24,#d8c3a5)">
+          <div class="flip">
+            <div class="face front media">
+              <img src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?auto=format&fit=crop&w=900&q=80" alt="Gondolas and palazzi along a Venetian canal" loading="lazy" width="900" height="1200">
+              <div class="dest-meta"><h3>Venice</h3><p>From $4,380</p></div>
+            </div>
+            <div class="face back">
+              <p class="eyebrow">4 nights</p><h3>Venice</h3>
+              <ul><li>Piano nobile, quiet canal</li><li>Gondola before nine</li><li>Islands of lace and glass</li></ul>
+              <button class="btn btn-ink magnetic" type="button" data-book="Venice">Book Now</button>
+            </div>
+          </div>
+        </article>
+        <article class="orbit-card" tabindex="0" style="--wash:linear-gradient(160deg,#24344a,#e7b7b4)">
+          <div class="flip">
+            <div class="face front media">
+              <img src="https://images.unsplash.com/photo-1542259009477-d625272157b7?auto=format&fit=crop&w=900&q=80" alt="Palms and dark volcanic rock on a shore at sunset" loading="lazy" width="900" height="1200">
+              <div class="dest-meta"><h3>Maui</h3><p>From $5,640</p></div>
+            </div>
+            <div class="face back">
+              <p class="eyebrow">7 nights</p><h3>Maui</h3>
+              <ul><li>Cliffside room, trade winds</li><li>Road to Hana, with a driver</li><li>A luau that is actually small</li></ul>
+              <button class="btn btn-ink magnetic" type="button" data-book="Maui">Book Now</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PACKAGES ===================== -->
+  <section class="scene scene-deck" data-scene="deck" data-pin id="packages" aria-labelledby="pack-title">
+    <div class="sticky">
+      <header class="sec-head">
+        <p class="eyebrow">02 — Journeys</p>
+        <h2 class="split" id="pack-title">Six ways to disappear</h2>
+      </header>
+      <div class="deck" id="deck">
+        <article class="pkg">
+          <div class="card-tilt tilt">
+            <div class="glare" aria-hidden="true"></div>
+            <div class="media" style="--wash:linear-gradient(145deg,#0a4a52,#e7d3b0)">
+              <img src="https://images.unsplash.com/photo-1540202404-a2f29016b523?auto=format&fit=crop&w=1200&q=80" alt="A small cluster of thatched overwater villas beside a white sand beach" loading="lazy" width="1200" height="800">
+            </div>
+            <div class="pkg-body">
+              <h3>Maldives Bliss</h3>
+              <p class="meta">7 nights · North Malé</p>
+              <p class="stars" aria-label="Rated 4.9 out of 5"><span aria-hidden="true">★★★★★</span><b>4.9</b></p>
+              <ul class="icons" aria-label="Included">
+                <li title="Villa"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7M5 10v9h14v-9"/></svg></li>
+                <li title="Dining"><svg viewBox="0 0 24 24"><path d="M5 3v8a3 3 0 0 0 6 0V3M8 11v10M16 3v18M16 8h4"/></svg></li>
+                <li title="Transfers"><svg viewBox="0 0 24 24"><path d="M3 16h18l-2-7H8L3 16zM6 16v3M18 16v3"/></svg></li>
+                <li title="Spa"><svg viewBox="0 0 24 24"><path d="M12 21c6-4 8-8 8-12a4 4 0 0 0-8 0 4 4 0 0 0-8 0c0 4 2 8 8 12z"/></svg></li>
+              </ul>
+              <div class="pkg-foot"><strong>$6,480</strong><button class="btn btn-solid magnetic" type="button" data-book="Maldives">Book Now</button></div>
+            </div>
+          </div>
+        </article>
+        <article class="pkg">
+          <div class="card-tilt tilt">
+            <div class="glare" aria-hidden="true"></div>
+            <div class="media" style="--wash:linear-gradient(145deg,#1d4a32,#d4b483)">
+              <img src="https://images.unsplash.com/photo-1555400038-63f5ba517a47?auto=format&fit=crop&w=1200&q=80" alt="Terraced rice fields and palms in Bali" loading="lazy" width="1200" height="800">
+            </div>
+            <div class="pkg-body">
+              <h3>Bali Romance</h3>
+              <p class="meta">8 nights · Ubud &amp; the coast</p>
+              <p class="stars" aria-label="Rated 4.8 out of 5"><span aria-hidden="true">★★★★★</span><b>4.8</b></p>
+              <ul class="icons" aria-label="Included">
+                <li title="Villa"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7M5 10v9h14v-9"/></svg></li>
+                <li title="Dining"><svg viewBox="0 0 24 24"><path d="M5 3v8a3 3 0 0 0 6 0V3M8 11v10M16 3v18M16 8h4"/></svg></li>
+                <li title="Transfers"><svg viewBox="0 0 24 24"><path d="M3 16h18l-2-7H8L3 16zM6 16v3M18 16v3"/></svg></li>
+                <li title="Spa"><svg viewBox="0 0 24 24"><path d="M12 21c6-4 8-8 8-12a4 4 0 0 0-8 0 4 4 0 0 0-8 0c0 4 2 8 8 12z"/></svg></li>
+              </ul>
+              <div class="pkg-foot"><strong>$4,260</strong><button class="btn btn-solid magnetic" type="button" data-book="Bali">Book Now</button></div>
+            </div>
+          </div>
+        </article>
+        <article class="pkg">
+          <div class="card-tilt tilt">
+            <div class="glare" aria-hidden="true"></div>
+            <div class="media" style="--wash:linear-gradient(145deg,#1a4e86,#f0e2c8)">
+              <img src="https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1200&q=80" alt="White buildings and a blue dome above the Santorini sea" loading="lazy" width="1200" height="800">
+            </div>
+            <div class="pkg-body">
+              <h3>Santorini Sunset</h3>
+              <p class="meta">6 nights · Oia caldera</p>
+              <p class="stars" aria-label="Rated 4.9 out of 5"><span aria-hidden="true">★★★★★</span><b>4.9</b></p>
+              <ul class="icons" aria-label="Included">
+                <li title="Suite"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7M5 10v9h14v-9"/></svg></li>
+                <li title="Dining"><svg viewBox="0 0 24 24"><path d="M5 3v8a3 3 0 0 0 6 0V3M8 11v10M16 3v18M16 8h4"/></svg></li>
+                <li title="Transfers"><svg viewBox="0 0 24 24"><path d="M3 16h18l-2-7H8L3 16zM6 16v3M18 16v3"/></svg></li>
+                <li title="Sail"><svg viewBox="0 0 24 24"><path d="M4 20h16M6 20 12 4l6 16"/></svg></li>
+              </ul>
+              <div class="pkg-foot"><strong>$5,140</strong><button class="btn btn-solid magnetic" type="button" data-book="Santorini">Book Now</button></div>
+            </div>
+          </div>
+        </article>
+        <article class="pkg">
+          <div class="card-tilt tilt">
+            <div class="glare" aria-hidden="true"></div>
+            <div class="media" style="--wash:linear-gradient(145deg,#3a3128,#e7d3b0)">
+              <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=80" alt="The Eiffel Tower seen from the Seine at dusk" loading="lazy" width="1200" height="800">
+            </div>
+            <div class="pkg-body">
+              <h3>Parisian Love</h3>
+              <p class="meta">5 nights · Left Bank</p>
+              <p class="stars" aria-label="Rated 4.8 out of 5"><span aria-hidden="true">★★★★★</span><b>4.8</b></p>
+              <ul class="icons" aria-label="Included">
+                <li title="Suite"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7M5 10v9h14v-9"/></svg></li>
+                <li title="Dining"><svg viewBox="0 0 24 24"><path d="M5 3v8a3 3 0 0 0 6 0V3M8 11v10M16 3v18M16 8h4"/></svg></li>
+                <li title="Transfers"><svg viewBox="0 0 24 24"><path d="M3 16h18l-2-7H8L3 16zM6 16v3M18 16v3"/></svg></li>
+                <li title="Private hour"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5l3 2"/></svg></li>
+              </ul>
+              <div class="pkg-foot"><strong>$4,890</strong><button class="btn btn-solid magnetic" type="button" data-book="Paris">Book Now</button></div>
+            </div>
+          </div>
+        </article>
+        <article class="pkg">
+          <div class="card-tilt tilt">
+            <div class="glare" aria-hidden="true"></div>
+            <div class="media" style="--wash:linear-gradient(145deg,#4a6278,#f4efe6)">
+              <img src="https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=1200&q=80" alt="Snow-covered alpine peaks under a bright sky" loading="lazy" width="1200" height="800">
+            </div>
+            <div class="pkg-body">
+              <h3>Swiss Alpine Escape</h3>
+              <p class="meta">6 nights · Bernese Oberland</p>
+              <p class="stars" aria-label="Rated 4.9 out of 5"><span aria-hidden="true">★★★★★</span><b>4.9</b></p>
+              <ul class="icons" aria-label="Included">
+                <li title="Chalet"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7M5 10v9h14v-9"/></svg></li>
+                <li title="Dining"><svg viewBox="0 0 24 24"><path d="M5 3v8a3 3 0 0 0 6 0V3M8 11v10M16 3v18M16 8h4"/></svg></li>
+                <li title="Train"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="14" rx="3"/><path d="M6 13h12M8 21l2-4M16 21l-2-4"/></svg></li>
+                <li title="Firelight"><svg viewBox="0 0 24 24"><path d="M12 21c4-3 6-6 6-10a6 6 0 0 0-12 0c0 4 2 7 6 10z"/></svg></li>
+              </ul>
+              <div class="pkg-foot"><strong>$5,760</strong><button class="btn btn-solid magnetic" type="button" data-book="Swiss Alps">Book Now</button></div>
+            </div>
+          </div>
+        </article>
+        <article class="pkg">
+          <div class="card-tilt tilt">
+            <div class="glare" aria-hidden="true"></div>
+            <div class="media" style="--wash:linear-gradient(145deg,#1e4a32,#e7d3b0)">
+              <img src="https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80" alt="A covered boat on a palm-lined Kerala backwater" loading="lazy" width="1200" height="800">
+            </div>
+            <div class="pkg-body">
+              <h3>Kerala Backwater Retreat</h3>
+              <p class="meta">7 nights · Alleppey</p>
+              <p class="stars" aria-label="Rated 4.7 out of 5"><span aria-hidden="true">★★★★★</span><b>4.7</b></p>
+              <ul class="icons" aria-label="Included">
+                <li title="Houseboat"><svg viewBox="0 0 24 24"><path d="M3 16h18l-2-5H8L3 16zM8 11V7h6l2 4"/></svg></li>
+                <li title="Dining"><svg viewBox="0 0 24 24"><path d="M5 3v8a3 3 0 0 0 6 0V3M8 11v10M16 3v18M16 8h4"/></svg></li>
+                <li title="Transfers"><svg viewBox="0 0 24 24"><path d="M3 16h18l-2-7H8L3 16zM6 16v3M18 16v3"/></svg></li>
+                <li title="Ritual"><svg viewBox="0 0 24 24"><path d="M12 21c6-4 8-8 8-12a4 4 0 0 0-8 0 4 4 0 0 0-8 0c0 4 2 8 8 12z"/></svg></li>
+              </ul>
+              <div class="pkg-foot"><strong>$3,240</strong><button class="btn btn-solid magnetic" type="button" data-book="Kerala">Book Now</button></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WHY ===================== -->
+  <section class="scene scene-why" data-scene="tunnel" data-pin id="why" aria-labelledby="why-title">
+    <div class="sticky">
+      <header class="sec-head">
+        <div>
+          <p class="eyebrow">03 — The atelier</p>
+          <h2 class="split" id="why-title">What we actually do</h2>
+        </div>
+        <p class="why-lede">Four promises we keep for every couple — written once, held through landing, and never handed to a call centre.</p>
+      </header>
+      <div class="why-layout">
+        <div class="tunnel" id="tunnel">
+          <article class="tunnel-card" data-n="01">
+            <p class="eyebrow">01</p>
+            <h3>One planner, start to landing</h3>
+            <p>The person who takes your first note is the person who meets the car. No desk in between, no script.</p>
+          </article>
+          <article class="tunnel-card" data-n="02">
+            <p class="eyebrow">02</p>
+            <h3>We sleep in the rooms we sell</h3>
+            <p>If a suite faces a generator, or the sunset is a brochure lie, it never reaches you. We have the photographs from the pillow.</p>
+          </article>
+          <article class="tunnel-card" data-n="03">
+            <p class="eyebrow">03</p>
+            <h3>Tables held under our name</h3>
+            <p>The beach dinner, the late museum hour, the vineyard that does not take walk-ins. They are promised to the atelier, not to a website.</p>
+          </article>
+          <article class="tunnel-card" data-n="04">
+            <p class="eyebrow">04</p>
+            <h3>A thread that answers at midnight</h3>
+            <p>One conversation, from the fitting to the flight home. If a boat is late, you hear it from us before you hear it from the dock.</p>
+          </article>
+        </div>
+        <div class="counters">
+          <p class="counters-mark"><i aria-hidden="true"></i> In practice</p>
+          <article><strong data-count="1840">1,840</strong><span>Couples sent well</span></article>
+          <article><strong data-count="46">46</strong><span>Coastlines we will vouch for</span></article>
+          <article><strong data-count="19">19</strong><span>Quiet awards, none framed in the lobby</span></article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== EXPERIENCES ===================== -->
+  <section class="scene scene-exp" data-scene="hscroll" data-pin id="experiences" aria-labelledby="exp-title">
+    <div class="sticky h-sticky">
+      <header class="sec-head">
+        <p class="eyebrow">04 — Hours</p>
+        <h2 class="split" id="exp-title">Evenings we refuse to rush</h2>
+      </header>
+      <div class="h-viewport">
+        <div class="h-track">
+          <article class="panel">
+            <div class="media" style="--wash:linear-gradient(160deg,#3a2018,#e7b7b4)">
+              <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1600&q=80" alt="A plated dinner with wine glasses in low, warm light" loading="lazy" width="1600" height="1066">
+              <div class="panel-copy"><p class="eyebrow">Candlelight</p><h3>Dinner on the sand</h3><p>A table set below the tide line. Four courses, one server, the lamps go out when you ask.</p></div>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="media" style="--wash:linear-gradient(160deg,#243028,#e7d3b0)">
+              <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=1600&q=80" alt="Smooth spa stones stacked beside soft towels" loading="lazy" width="1600" height="1066">
+              <div class="panel-copy"><p class="eyebrow">Stillness</p><h3>A ritual for two</h3><p>Oils chosen for the climate you are in, not a menu of twelve. Ninety minutes, then the day is yours again.</p></div>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="media" style="--wash:linear-gradient(160deg,#0e4a62,#d7e4ea)">
+              <img src="https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?auto=format&fit=crop&w=1600&q=80" alt="A white motor yacht on clear blue water" loading="lazy" width="1600" height="1066">
+              <div class="panel-copy"><p class="eyebrow">Water</p><h3>The private yacht</h3><p>No other guests, a captain who knows the quiet side of the island, and lunch that is not in a box.</p></div>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="media" style="--wash:linear-gradient(160deg,#6a3a28,#f0d2a8)">
+              <img src="https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?auto=format&fit=crop&w=1600&q=80" alt="Hot-air balloons lifting off at sunrise" loading="lazy" width="1600" height="1066">
+              <div class="panel-copy"><p class="eyebrow">Air</p><h3>Balloon at first light</h3><p>You rise before the roads do. A basket for two, then breakfast back on the ground while it is still cool.</p></div>
+            </div>
+          </article>
+          <article class="panel">
+            <div class="media" style="--wash:linear-gradient(160deg,#102033,#7d6aa8)">
+              <img src="https://images.unsplash.com/photo-1531366936337-7c912a4589a7?auto=format&fit=crop&w=1600&q=80" alt="Northern lights in green and violet over a snowfield" loading="lazy" width="1600" height="1066">
+              <div class="panel-copy"><p class="eyebrow">Glass</p><h3>The glass cabin</h3><p>A night under a roof you can see through. The aurora does the talking. We book the cabin that actually faces north.</p></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== GALLERY ===================== -->
+  <section class="scene scene-gallery light" data-scene="gallery" data-pin id="gallery" aria-labelledby="gal-title">
+    <div class="sticky">
+      <header class="sec-head">
+        <p class="eyebrow">05 — Proof</p>
+        <h2 class="split" id="gal-title">Rooms and water we can stand behind</h2>
+      </header>
+      <div class="masonry" id="masonry">
+        <figure class="g-item g1 tilt"><div class="frame media" style="--wash:linear-gradient(160deg,#0a6a72,#e7d3b0)"><img src="https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=1200&q=80" alt="Overwater villas from above in a Maldives lagoon" loading="lazy" width="800" height="1100"><div class="glare"></div><figcaption>Maldives · the long jetty</figcaption></div></figure>
+        <figure class="g-item g2 tilt"><div class="frame media" style="--wash:linear-gradient(160deg,#245,#e7b7b4)"><img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1000&q=80" alt="A Balinese sea temple at dusk" loading="lazy" width="800" height="600"><div class="glare"></div><figcaption>Bali · temple rock</figcaption></div></figure>
+        <figure class="g-item g3 tilt"><div class="frame media" style="--wash:linear-gradient(160deg,#1a4e86,#f4efe6)"><img src="https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?auto=format&fit=crop&w=1400&q=80" alt="Santorini blue domes stepping down to the caldera" loading="lazy" width="1200" height="700"><div class="glare"></div><figcaption>Santorini · after the ships leave</figcaption></div></figure>
+        <figure class="g-item g4 tilt"><div class="frame media" style="--wash:linear-gradient(160deg,#333,#e7d3b0)"><img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1000&q=80" alt="Eiffel Tower across the river in Paris" loading="lazy" width="800" height="600"><div class="glare"></div><figcaption>Paris · the late hour</figcaption></div></figure>
+        <figure class="g-item g5 tilt"><div class="frame media" style="--wash:linear-gradient(160deg,#445,#fff)"><img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1000&q=80" alt="A sharp mountain ridge in clear alpine light" loading="lazy" width="800" height="1100"><div class="glare"></div><figcaption>Alps · the high path</figcaption></div></figure>
+        <figure class="g-item g6 tilt"><div class="frame media" style="--wash:linear-gradient(160deg,#0e3a4a,#d4b483)"><img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1000&q=80" alt="Dubai skyline with the Burj Khalifa at dusk" loading="lazy" width="800" height="600"><div class="glare"></div><figcaption>Dubai · gulf light</figcaption></div></figure>
+        <figure class="g-item g7 tilt"><div class="frame media" style="--wash:linear-gradient(160deg,#1e4a32,#e7d3b0)"><img src="https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1000&q=80" alt="Palm trees arching over a Kerala canal" loading="lazy" width="800" height="600"><div class="glare"></div><figcaption>Kerala · slow water</figcaption></div></figure>
+        <figure class="g-item g8 tilt"><div class="frame media" style="--wash:linear-gradient(160deg,#3a2a24,#d8c3a5)"><img src="https://images.unsplash.com/photo-1514890547357-a9ee288728e0?auto=format&fit=crop&w=1000&q=80" alt="A Venetian canal with moored boats and warm facades" loading="lazy" width="800" height="600"><div class="glare"></div><figcaption>Venice · before nine</figcaption></div></figure>
+        <figure class="g-item g9 tilt"><div class="frame media" style="--wash:linear-gradient(160deg,#0d3b3a,#9fd)"><img src="https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=1000&q=80" alt="A longtail boat on clear tropical water" loading="lazy" width="800" height="600"><div class="glare"></div><figcaption>Phuket · the quiet cove</figcaption></div></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ITINERARY ===================== -->
+  <section class="scene scene-route light" data-scene="route" id="itinerary" aria-labelledby="itin-title">
+    <div class="sec-head" style="padding:0 6vw;max-width:none">
+      <div style="max-width:760px">
+        <p class="eyebrow">06 — A sample week</p>
+        <h2 class="split" id="itin-title">The long way home</h2>
+        <p class="lede">Paris, then Venice, then Santorini. One route we keep building because the flights connect and the days do not feel copied.</p>
+      </div>
+    </div>
+    <div class="route-wrap">
+      <svg class="route-svg" viewBox="0 0 200 1400" preserveAspectRatio="none" aria-hidden="true">
+        <path class="route-ghost" d="M100 20 C100 110 36 110 36 210 S164 310 164 410 S36 510 36 610 S164 710 164 810 S36 910 36 1010 S164 1110 164 1210 S100 1280 100 1360"></path>
+        <path id="route" class="route-draw" d="M100 20 C100 110 36 110 36 210 S164 310 164 410 S36 510 36 610 S164 710 164 810 S36 910 36 1010 S164 1110 164 1210 S100 1280 100 1360"></path>
+        <g id="plane">
+          <path d="M0 -7 L16 0 L0 7 L4 0 Z" fill="#9a6248"></path>
+        </g>
+      </svg>
+      <ol class="miles">
+        <li class="mile" data-at="0.06"><small>Day 1 · Paris</small><h3>Land, then go quiet</h3><p>A suite on the Left Bank. Supper that is not a tasting menu performed at you. Sleep.</p></li>
+        <li class="mile" data-at="0.18"><small>Day 2 · Paris</small><h3>After the museums close</h3><p>One private hour, then champagne on the river while the bridges turn their lights on.</p></li>
+        <li class="mile" data-at="0.32"><small>Day 3 · Venice</small><h3>The city that answers by water</h3><p>Morning flight, a piano nobile above a canal that is not a thoroughfare. You walk, or you don’t.</p></li>
+        <li class="mile" data-at="0.46"><small>Day 4 · Venice</small><h3>Before the day-trippers</h3><p>Gondola at eight. The islands of lace and glass in the afternoon, home before the crush.</p></li>
+        <li class="mile" data-at="0.6"><small>Day 5 · Santorini</small><h3>Whitewash, and the real blue</h3><p>Caldera suite. The photograph everyone takes is at six. Yours is at eight, from the terrace.</p></li>
+        <li class="mile" data-at="0.74"><small>Day 6 · Santorini</small><h3>Nothing after four</h3><p>A catamaran, a swim, a table on the cliff. The rest of the diary is blank on purpose.</p></li>
+        <li class="mile" data-at="0.88"><small>Day 7 · Departure</small><h3>Breakfast with the wind</h3><p>You leave when the car is called, not when a group is. The planner is already on the other end.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ===================== STORIES ===================== -->
+  <section class="scene scene-reel" id="stories" aria-labelledby="story-title">
+    <header class="sec-head">
+      <p class="eyebrow">07 — Notes</p>
+      <h2 class="split" id="story-title">From the ones who went</h2>
+    </header>
+    <div class="notes-stage" id="notes-stage" aria-label="Couple notes, drag or pause on hover">
+      <div class="notes-rail" id="reel">
+        <article class="note">
+          <p class="note-place">Maldives</p>
+          <blockquote>“They put us in the villa that faces the lagoon, not the one in the brochure. We noticed on the first evening and did not want to leave the deck.”</blockquote>
+          <footer>
+            <img src="https://images.unsplash.com/photo-1529634597503-139d3726fed5?auto=format&fit=crop&w=400&q=80" alt="" loading="lazy" width="400" height="400">
+            <div>
+              <h3>Amara &amp; Jules</h3>
+              <p class="stars" aria-label="5 out of 5"><span aria-hidden="true">★★★★★</span></p>
+            </div>
+          </footer>
+        </article>
+        <article class="note">
+          <p class="note-place">Paris</p>
+          <blockquote>“Paris, then nothing scheduled until four. That empty afternoon was the part we still talk about. Someone had protected it.”</blockquote>
+          <footer>
+            <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=400&q=80" alt="" loading="lazy" width="400" height="400">
+            <div>
+              <h3>Leila &amp; Noah</h3>
+              <p class="stars" aria-label="5 out of 5"><span aria-hidden="true">★★★★★</span></p>
+            </div>
+          </footer>
+        </article>
+        <article class="note">
+          <p class="note-place">Kerala</p>
+          <blockquote>“The houseboat in Kerala felt like a house, not a tour. The cook asked what we did not eat before we had to say it.”</blockquote>
+          <footer>
+            <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=400&q=80" alt="" loading="lazy" width="400" height="400">
+            <div>
+              <h3>Mei &amp; Andre</h3>
+              <p class="stars" aria-label="5 out of 5"><span aria-hidden="true">★★★★★</span></p>
+            </div>
+          </footer>
+        </article>
+        <article class="note">
+          <p class="note-place">Santorini</p>
+          <blockquote>“Santorini can be a queue. Ours was a terrace, a boat, and a table that was actually ours. Worth every quiet arrangement.”</blockquote>
+          <footer>
+            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=400&q=80" alt="" loading="lazy" width="400" height="400">
+            <div>
+              <h3>Sofia &amp; Mateo</h3>
+              <p class="stars" aria-label="5 out of 5"><span aria-hidden="true">★★★★★</span></p>
+            </div>
+          </footer>
+        </article>
+        <article class="note">
+          <p class="note-place">Swiss Alps</p>
+          <blockquote>“When the glacier train was full, someone had already moved us to the earlier one. We found out from a message, not from a queue.”</blockquote>
+          <footer>
+            <img src="https://images.unsplash.com/photo-1539635278303-d4002c07eae3?auto=format&fit=crop&w=400&q=80" alt="" loading="lazy" width="400" height="400">
+            <div>
+              <h3>Hana &amp; Chris</h3>
+              <p class="stars" aria-label="5 out of 5"><span aria-hidden="true">★★★★★</span></p>
+            </div>
+          </footer>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PRICING ===================== -->
+  <section class="scene scene-price light" data-scene="price" data-pin id="pricing" aria-labelledby="price-title">
+    <div class="sticky">
+      <header class="sec-head">
+        <p class="eyebrow">08 — Depth</p>
+        <h2 class="split" id="price-title">Choose how far we go</h2>
+        <p class="lede">Figures are for two people. International flights are quoted in the open, never folded into a number that will not hold.</p>
+      </header>
+      <div class="tiers">
+        <article class="tier">
+          <header><p>Silver</p><h3>The Promise</h3></header>
+          <p class="sum">$2,900 <small>from</small></p>
+          <ul>
+            <li>5 nights, one destination</li>
+            <li>A suite we have stayed in</li>
+            <li>Airport welcome, private car</li>
+            <li>Breakfast, and one sunset plan</li>
+            <li>Planner by email, office hours</li>
+          </ul>
+          <button class="btn btn-ink magnetic" type="button" data-tier="Silver">Request Silver</button>
+        </article>
+        <article class="tier tier-gold">
+          <header><p>Gold · most chosen</p><h3>The Vow</h3></header>
+          <p class="sum">$5,600 <small>from</small></p>
+          <ul>
+            <li>7 nights, held on allocation</li>
+            <li>Overwater, caldera, or chalet</li>
+            <li>Private transfers, both ends</li>
+            <li>One signature dinner</li>
+            <li>Couples ritual</li>
+            <li>A private thread with your planner</li>
+          </ul>
+          <button class="btn btn-solid magnetic" type="button" data-tier="Gold">Request Gold</button>
+        </article>
+        <article class="tier tier-ink">
+          <header><p>Platinum</p><h3>The Forever</h3></header>
+          <p class="sum">$11,400 <small>from</small></p>
+          <ul>
+            <li>10 nights, two destinations</li>
+            <li>The best suite we can hold</li>
+            <li>Seaplane or helicopter where it belongs</li>
+            <li>A yacht morning</li>
+            <li>Flowers, a table no one else can book</li>
+            <li>Your planner travels ahead of you</li>
+          </ul>
+          <button class="btn btn-solid magnetic" type="button" data-tier="Platinum">Request Platinum</button>
+        </article>
+      </div>
+      <p class="fine">Silver is the careful first trip. Gold is the one most couples mean when they say honeymoon. Platinum is for two places and no compromises on the room.</p>
+    </div>
+  </section>
+
+  <!-- ===================== CONTACT ===================== -->
+  <section class="scene scene-plan" data-scene="curtain" data-pin id="plan" aria-labelledby="plan-title">
+    <div class="sticky">
+      <div class="plan-intro">
+        <div>
+          <p class="eyebrow">09 — The desk</p>
+          <h2 class="split" id="plan-title">Tell us when you land</h2>
+        </div>
+      </div>
+      <div class="curtain">
+        <div class="bg media" style="--wash:linear-gradient(160deg,#12343c,#c9956c)">
+          <img src="https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=1600&q=80" alt="A quiet lake house at dusk with warm light in the windows" loading="lazy" width="1600" height="1066">
+        </div>
+        <div class="plan-card">
+          <form id="plan-form" novalidate>
+            <h2>Write to the atelier</h2>
+            <div class="form-grid">
+              <label class="field wide">
+                <input id="names" name="names" type="text" placeholder=" " required autocomplete="name" aria-describedby="err-names">
+                <span>Your names</span>
+                <small class="err" id="err-names">Tell us who is travelling.</small>
+              </label>
+              <label class="field">
+                <input id="email" name="email" type="email" placeholder=" " required autocomplete="email" aria-describedby="err-email">
+                <span>Email</span>
+                <small class="err" id="err-email">We need a real email to reply.</small>
+              </label>
+              <label class="field">
+                <input id="phone" name="phone" type="tel" placeholder=" " required autocomplete="tel" aria-describedby="err-phone">
+                <span>Phone</span>
+                <small class="err" id="err-phone">Add a number we can reach.</small>
+              </label>
+              <label class="field">
+                <select id="dest-plan" name="destination" required aria-describedby="err-dest">
+                  <option value="" selected disabled>Choose</option>
+                  <option>Maldives</option><option>Bali</option><option>Santorini</option>
+                  <option>Paris</option><option>Swiss Alps</option><option>Dubai</option>
+                  <option>Kerala</option><option>Phuket</option><option>Venice</option>
+                  <option>Maui</option><option>Not sure yet</option>
+                </select>
+                <span>Destination</span>
+                <small class="err" id="err-dest">Choose a shore, or “not sure”.</small>
+              </label>
+              <label class="field">
+                <input id="date-plan" name="date" type="date" placeholder=" " required aria-describedby="err-date">
+                <span>Travel date</span>
+                <small class="err" id="err-date">Add the day you hope to leave.</small>
+              </label>
+              <label class="field wide">
+                <select id="budget-plan" name="budget" required aria-describedby="err-budget">
+                  <option value="" selected disabled>Choose</option>
+                  <option>Under $4,000</option>
+                  <option>$4,000–7,000</option>
+                  <option>$7,000–12,000</option>
+                  <option>Above $12,000</option>
+                </select>
+                <span>Budget for two</span>
+                <small class="err" id="err-budget">A range is enough.</small>
+              </label>
+              <label class="field wide">
+                <textarea id="message" name="message" placeholder=" " required aria-describedby="err-message"></textarea>
+                <span>What the week should feel like</span>
+                <small class="err" id="err-message">A sentence is enough to begin.</small>
+              </label>
+            </div>
+            <div class="form-actions">
+              <p class="meta" style="margin:0">We reply within one working day.</p>
+              <button class="btn btn-solid magnetic" type="submit">Send the note</button>
+            </div>
+            <p class="live" aria-live="polite" id="form-live"></p>
+          </form>
+          <div class="success" id="form-success" hidden>
+            <div class="hearts" id="hearts" aria-hidden="true"></div>
+            <h3>We have the dates.</h3>
+            <p>A planner will write to you within one working day. Nothing was stored on this device.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="footer">
+  <div class="waves" aria-hidden="true">
+    <svg viewBox="0 0 2880 120" preserveAspectRatio="none">
+      <path class="w1" d="M0 60c120 30 240-30 360 0s240 30 360 0 240-30 360 0 240 30 360 0 240-30 360 0 240 30 360 0 240-30 360 0 240 30 360 0v60H0Z"></path>
+      <path class="w2" d="M0 80c140 24 220-24 360 0s240 24 360 0 220-24 360 0 240 24 360 0 220-24 360 0 240 24 360 0 220-24 360 0v40H0Z"></path>
+    </svg>
+  </div>
+  <div class="foot-grid">
+    <div>
+      <a class="logo" href="#top"><span class="logo-mark" aria-hidden="true">E</span><span><strong>ELYSIAN</strong><small>Escapes</small></span></a>
+      <p>Honeymoons composed by hand. By appointment in Paris, with planners in Venice and the Maldives.</p>
+      <div class="socials">
+        <a href="https://www.instagram.com/explore/tags/honeymoon/" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor" stroke="none"/></svg></a>
+        <a href="https://www.pinterest.com/search/pins/?q=honeymoon" target="_blank" rel="noopener noreferrer" aria-label="Pinterest"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-3.3 17.4c-.1-.7-.2-1.8 0-2.6l2-8.2s-.5-1-0.5-2.4c0-2.2 1.3-3.9 2.9-3.9 1.4 0 2 .1 2 2.3 0 1.4-.9 3.5-1.4 5.4-.4 1.6.8 2.9 2.4 2.9 2.9 0 4.8-3.7 4.8-8.1C18.9 6.2 16.4 4 12.8 4 8.6 4 5.6 7.2 5.6 11.2c0 1.6.5 2.7 1.3 3.2.2.1.3 0 .3-.2l.4-1.5c0-.2 0-.3-.2-.4-.5-.3-.9-1.2-.9-2.2 0-2.6 2-5.7 5.7-5.7 3 0 4.7 1.9 4.7 4.6 0 3.4-1.7 5.8-4 5.8-.8 0-1.5-.4-1.8-1l-.5 1.9c-.2.7-.7 1.6-1 2.1A9 9 0 1 0 12 3z"/></svg></a>
+        <a href="https://www.youtube.com/results?search_query=honeymoon+travel" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M11 10v4l4-2z" fill="currentColor" stroke="none"/></svg></a>
+      </div>
+    </div>
+    <div>
+      <h3>The map</h3>
+      <a href="#destinations">Destinations</a><br>
+      <a href="#packages">Journeys</a><br>
+      <a href="#experiences">Experiences</a><br>
+      <a href="#itinerary">Sample week</a><br>
+      <a href="#pricing">Tiers</a>
+    </div>
+    <div>
+      <h3>Visit</h3>
+      <p>Atelier line<br><a href="tel:+18005550199">+1 (800) 555-0199</a></p>
+      <p><a href="mailto:atelier@elysianescapes.example">atelier@elysianescapes.example</a></p>
+    </div>
+    <div>
+      <h3>Notes, occasionally</h3>
+      <p>A letter when a room opens or a season turns. No weekly noise.</p>
+      <form class="news" id="news-form">
+        <label class="visually-hidden" for="news-email" style="position:absolute;left:-999px">Email</label>
+        <input id="news-email" type="email" required placeholder="Email address" autocomplete="email">
+        <button class="btn btn-solid magnetic" type="submit">Join</button>
+      </form>
+      <p id="news-note" aria-live="polite"></p>
+    </div>
+  </div>
+  <div class="legal">
+    <span>© 2026 Elysian Escapes. Honeymoons composed by hand.</span>
+    <a href="#top">Back to top</a>
+  </div>
+</footer>
+
+<button class="to-top" id="to-top" type="button">
+  <span class="rocket" aria-hidden="true">♥</span> Top
+</button>
+<a class="wa" href="https://wa.me/18005550199?text=Hello%20Elysian%20Escapes%20%E2%80%94%20we%20would%20like%20to%20plan%20a%20honeymoon." target="_blank" rel="noopener noreferrer" aria-label="Chat with a planner on WhatsApp">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18.5 6.2 15A7.5 7.5 0 1 1 9 18.2L5 18.5z"/><path d="M9 10.5c.2 1.6 2.2 3.2 3.6 3.5.4 0 1.2-.4 1.4-.9l.2-.6-1-.6c-.2 0-.5.1-.8.4-.2.2-.6.3-.7.1-.4-.3-1-1-1.1-1.2-.1-.2 0-.4.2-.6l.5-.6c.1-.2 0-.4 0-.5L10.6 8c-.2-.4-.5-.4-.7-.4H9.4c-.3 0-.7.2-.8.6-.2.8.1 1.8.4 2.3z"/></svg>
+</a>
+
+<script src="https://unpkg.com/lenis@1.3.27/dist/lenis.min.js"></script>
+<script>
+/* =========================================================
+   SCROLL ENGINE
+   Lenis smooths the wheel; one rAF loop advances Lenis then
+   reads layout. --progress / --page / --enter drive the CSS.
+   ========================================================= */
+(function () {
+  const root = document.documentElement;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const narrow = window.matchMedia("(max-width: 800px)");
+  const $ = (sel, ctx) => (ctx || document).querySelector(sel);
+  const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
+
+  /* Lenis — skipped when the user prefers reduced motion */
+  let lenis = null;
+  if (!reduced && typeof Lenis === "function") {
+    lenis = new Lenis({
+      autoRaf: false,
+      anchors: true,
+      autoToggle: true,
+      syncTouch: false,
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      wheelMultiplier: 0.92,
+      touchMultiplier: 1.15,
+    });
+  }
+
+  function scrollToTarget(target, opts) {
+    if (target == null) return;
+    const options = opts || {};
+    if (lenis) {
+      lenis.scrollTo(target, {
+        offset: options.offset != null ? options.offset : -12,
+        immediate: !!options.immediate,
+        duration: options.duration,
+      });
+      return;
+    }
+    if (typeof target === "number") {
+      window.scrollTo({ top: target, behavior: reduced ? "auto" : "smooth" });
+      return;
+    }
+    const el = typeof target === "string" ? $(target) : target;
+    if (el && el.scrollIntoView) el.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+  }
+
+  const nav = $("#nav");
+  const toggle = $(".nav-toggle");
+  const cursor = $(".cursor");
+  const pre = $("#preloader");
+  const toTop = $("#to-top");
+
+  /* ---- decorative bits that do not depend on scroll ---- */
+  (function grain() {
+    const c = document.createElement("canvas");
+    c.width = 140; c.height = 140;
+    const ctx = c.getContext("2d");
+    const img = ctx.createImageData(140, 140);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = 210 + Math.random() * 45;
+      img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+      img.data[i + 3] = Math.random() * 70;
+    }
+    ctx.putImageData(img, 0, 0);
+    $(".grain").style.backgroundImage = "url(" + c.toDataURL("image/png") + ")";
+  })();
+
+  $$(".split").forEach((el) => {
+    const text = el.textContent.trim().replace(/\s+/g, " ");
+    el.setAttribute("aria-label", text);
+    el.textContent = "";
+    text.split(" ").forEach((word, i) => {
+      const outer = document.createElement("span");
+      outer.className = "word";
+      outer.style.setProperty("--i", String(i));
+      const inner = document.createElement("span");
+      inner.textContent = word;
+      outer.appendChild(inner);
+      el.appendChild(outer);
+      el.appendChild(document.createTextNode(" "));
+    });
+  });
+
+  $$("img").forEach((img) => {
+    img.addEventListener("error", () => img.classList.add("is-broken"));
+    if (img.complete && img.naturalWidth === 0) img.classList.add("is-broken");
+  });
+
+  /* ---- counters: count once as they enter ---- */
+  const counterIO = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (!en.isIntersecting) return;
+      counterIO.unobserve(en.target);
+      const target = Number(en.target.dataset.count);
+      if (reduced) {
+        en.target.textContent = target.toLocaleString("en-US");
+        return;
+      }
+      const t0 = performance.now();
+      const step = (now) => {
+        const t = Math.min(1, (now - t0) / 1400);
+        const eased = 1 - Math.pow(1 - t, 3);
+        en.target.textContent = Math.round(target * eased).toLocaleString("en-US");
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+  }, { threshold: 0.6 });
+  $$("[data-count]").forEach((el) => counterIO.observe(el));
+
+  /* will-change only while a scene is near the viewport */
+  const nearIO = new IntersectionObserver((entries) => {
+    entries.forEach((en) => en.target.classList.toggle("is-near", en.isIntersecting));
+  }, { rootMargin: "20% 0px" });
+  $$("[data-scene]").forEach((scene) => nearIO.observe(scene));
+
+  /* ---- menu, cursor, magnetic, tilt, ripple ---- */
+  if (toggle) {
+    toggle.addEventListener("click", () => {
+      const open = nav.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", String(open));
+    });
+    $$("#nav-menu a").forEach((a) => a.addEventListener("click", () => {
+      nav.classList.remove("is-open");
+      toggle.setAttribute("aria-expanded", "false");
+    }));
+  }
+
+  if (fine && !reduced) root.classList.add("has-cursor");
+
+  let tmx = 0, tmy = 0, mx = 0, my = 0;
+  let tcx = 0, tcy = 0, cx = 0, cy = 0;
+  let hovering = false;
+  let cursorOn = false;
+  const introOrb = $("#intro-orb");
+  const introVoid = $(".intro-void");
+  let tox = 0, toy = 0, oox = 0, ooy = 0, orbActive = false;
+  if (introOrb) {
+    introOrb.addEventListener("click", () => {
+      scrollToTarget("#destinations");
+    });
+  }
+  const clampLocal = (v, a, b) => Math.min(b, Math.max(a, v));
+
+  document.addEventListener("pointermove", (e) => {
+    tcx = e.clientX; tcy = e.clientY;
+    tmx = e.clientX / window.innerWidth - 0.5;
+    tmy = e.clientY / window.innerHeight - 0.5;
+    cursorOn = true;
+    const typing = e.target.closest("input, textarea, select");
+    hovering = !typing && !!e.target.closest("a, button, .tilt, .orbit-card, .pkg, .tier, .intro-reveal");
+    if (cursor) cursor.classList.toggle("is-hidden", !!typing);
+
+    const mag = e.target.closest(".magnetic");
+    $$(".magnetic").forEach((el) => {
+      if (el !== mag) { el.style.setProperty("--mx", "0px"); el.style.setProperty("--my", "0px"); }
+    });
+    if (mag) {
+      const r = mag.getBoundingClientRect();
+      mag.style.setProperty("--mx", ((e.clientX - (r.left + r.width / 2)) * 0.28).toFixed(1) + "px");
+      mag.style.setProperty("--my", ((e.clientY - (r.top + r.height / 2)) * 0.35).toFixed(1) + "px");
+    }
+    const tilt = e.target.closest(".tilt");
+    $$(".tilt").forEach((el) => {
+      if (el !== tilt) { el.style.setProperty("--hx", "0deg"); el.style.setProperty("--hy", "0deg"); }
+    });
+    if (tilt) {
+      const r = tilt.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width;
+      const py = (e.clientY - r.top) / r.height;
+      tilt.style.setProperty("--hx", ((px - 0.5) * 9).toFixed(2) + "deg");
+      tilt.style.setProperty("--hy", ((0.5 - py) * 8).toFixed(2) + "deg");
+      tilt.style.setProperty("--gx", (px * 100).toFixed(1) + "%");
+      tilt.style.setProperty("--gy", (py * 100).toFixed(1) + "%");
+    }
+
+    /* Intro orb: track pointer relative to the quiet void (lerped in rAF) */
+    if (introVoid && !reduced) {
+      const vr = introVoid.getBoundingClientRect();
+      orbActive = e.clientY >= vr.top && e.clientY <= vr.bottom && e.clientX >= vr.left && e.clientX <= vr.right;
+      if (orbActive) {
+        tox = clampLocal((e.clientX - (vr.left + vr.width / 2)) * 0.42, -70, 70);
+        toy = clampLocal((e.clientY - (vr.top + vr.height / 2)) * 0.42, -48, 48);
+      }
+    }
+  }, { passive: true });
+
+  document.addEventListener("pointerdown", (e) => {
+    const btn = e.target.closest(".btn");
+    if (!btn || reduced) return;
+    const r = btn.getBoundingClientRect();
+    const span = document.createElement("span");
+    span.className = "ripple";
+    span.style.left = (e.clientX - r.left) + "px";
+    span.style.top = (e.clientY - r.top) + "px";
+    btn.appendChild(span);
+    span.addEventListener("animationend", () => span.remove());
+  });
+
+  /* ---- forms (front end only, nothing stored) ---- */
+  function fillPlan(dest, date, budget, tier) {
+    const destEl = $("#dest-plan");
+    const dateEl = $("#date-plan");
+    const budgetEl = $("#budget-plan");
+    const msg = $("#message");
+    if (dest && destEl) destEl.value = dest;
+    if (date && dateEl) dateEl.value = date;
+    if (budget && budgetEl) budgetEl.value = budget;
+    if (tier && msg && !msg.value) msg.value = "We are interested in the " + tier + " tier.";
+  }
+  $$("[data-book], [data-tier]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      fillPlan(btn.dataset.book || "", "", "", btn.dataset.tier || "");
+      scrollToTarget("#plan");
+    });
+  });
+  const planForm = $("#plan-form");
+  planForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    let ok = true;
+    $$(".field", planForm).forEach((field) => {
+      const control = $("input, select, textarea", field);
+      const valid = control.checkValidity();
+      field.classList.toggle("is-invalid", !valid);
+      if (!valid) ok = false;
+    });
+    const live = $("#form-live");
+    if (!ok) {
+      live.textContent = "A few fields still need an answer.";
+      const bad = $(".is-invalid input, .is-invalid select, .is-invalid textarea", planForm);
+      if (bad) bad.focus();
+      return;
+    }
+    planForm.hidden = true;
+    $("#form-success").hidden = false;
+    live.textContent = "Note sent. A planner will write within one working day.";
+    const hearts = $("#hearts");
+    for (let i = 0; i < 28; i++) {
+      const bit = document.createElement("i");
+      bit.className = "heart-bit";
+      bit.style.left = (30 + Math.random() * 40) + "%";
+      bit.style.setProperty("--dx", (Math.random() * 220 - 110).toFixed(0) + "px");
+      bit.style.setProperty("--dy", (-40 - Math.random() * 180).toFixed(0) + "px");
+      bit.style.animationDelay = (Math.random() * 0.2).toFixed(2) + "s";
+      bit.style.background = Math.random() > 0.5 ? "#e7b7b4" : "#e7d3b0";
+      hearts.appendChild(bit);
+    }
+  });
+  $$("#plan-form input, #plan-form select, #plan-form textarea").forEach((control) => {
+    control.addEventListener("input", () => {
+      if (control.checkValidity()) control.closest(".field").classList.remove("is-invalid");
+    });
+  });
+
+  $("#news-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const note = $("#news-note");
+    if (!$("#news-email").checkValidity()) {
+      note.textContent = "Add a valid email.";
+      return;
+    }
+    e.target.reset();
+    note.textContent = "You are on the list. We write rarely.";
+  });
+
+  toTop.addEventListener("click", () => {
+    scrollToTarget(0);
+  });
+
+  /* ---- measurement ---- */
+  const route = $("#route");
+  function measure() {
+    const tight = narrow.matches;
+    ["gallery", "orbit", "deck", "reel", "price"].forEach((name) => {
+      const scene = $('[data-scene="' + name + '"]');
+      if (scene) scene.classList.toggle("unpin", tight);
+    });
+    if (reduced) return;
+    const exp = $('[data-scene="hscroll"]');
+    if (exp) {
+      const viewport = $(".h-viewport", exp);
+      const track = $(".h-track", exp);
+      const distance = Math.max(0, track.scrollWidth - viewport.clientWidth);
+      exp.style.setProperty("--travel", (window.innerHeight + distance) + "px");
+      exp.dataset.distance = String(distance);
+    }
+    if (route) {
+      const len = route.getTotalLength();
+      route.style.setProperty("--len", String(len));
+    }
+    measureGallery();
+  }
+
+  function measureGallery() {
+    const scene = $('[data-scene="gallery"]');
+    const grid = $("#masonry");
+    if (!scene || !grid || reduced) return;
+    const prev = scene.style.getPropertyValue("--progress");
+    scene.style.setProperty("--progress", "1");
+    grid.querySelectorAll(".g-item").forEach((item) => { item.style.transform = "none"; });
+    void grid.offsetWidth;
+    const c = grid.getBoundingClientRect();
+    const cx = c.left + c.width / 2;
+    const cy = c.top + c.height / 2;
+    $$(".g-item", grid).forEach((item) => {
+      const r = item.getBoundingClientRect();
+      item.style.setProperty("--ox", (cx - (r.left + r.width / 2)).toFixed(1));
+      item.style.setProperty("--oy", (cy - (r.top + r.height / 2)).toFixed(1));
+      if (!item.dataset.rot) item.dataset.rot = (Math.random() * 46 - 23).toFixed(1);
+      item.style.setProperty("--rot", item.dataset.rot);
+      item.style.transform = "";
+    });
+    if (prev) scene.style.setProperty("--progress", prev);
+    else scene.style.removeProperty("--progress");
+  }
+
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+  function easeOutBack(t) {
+    const c1 = 1.70158, c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  }
+  function easeOutElastic(t) {
+    if (t === 0 || t === 1) return t;
+    const c4 = (2 * Math.PI) / 3;
+    return Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+  }
+
+  function progressFor(scene, rect, vh) {
+    if (scene.hasAttribute("data-pin") && !scene.classList.contains("unpin")) {
+      const travel = Math.max(1, scene.offsetHeight - vh);
+      return clamp(-rect.top / travel, 0, 1);
+    }
+    const total = Math.max(1, rect.height - vh * 0.25);
+    return clamp((vh * 0.75 - rect.top) / total, 0, 1);
+  }
+
+  /* ---- per-scene scroll math ---- */
+  function updateOrbit(scene, p) {
+    const stage = $(".orbit-grid", scene);
+    const cards = $$(".orbit-card", scene);
+    const n = cards.length;
+    if (!n || !stage) return;
+    const sw = stage.clientWidth;
+    const sh = Math.max(280, stage.clientHeight || 480);
+    const cols = sw < 640 ? 2 : sw < 980 ? 3 : 5;
+    const rows = Math.ceil(n / cols);
+    const gap = Math.max(10, Math.min(18, sw * 0.014));
+    const cardW = Math.max(132, Math.min(200, (sw - gap * (cols - 1)) / cols));
+    const cardH = Math.max(176, Math.min(268, (sh - gap * (rows - 1)) / rows));
+    const gridW = cols * cardW + (cols - 1) * gap;
+    const gridH = rows * cardH + (rows - 1) * gap;
+    const radius = Math.min(sw * 0.34, sh * 0.38, 380);
+    const ry = Math.min(sh * 0.28, radius * 0.55);
+    const settleAt = 0.5;
+
+    cards.forEach((card, i) => {
+      card.style.setProperty("--cw", cardW.toFixed(1) + "px");
+      card.style.setProperty("--ch", cardH.toFixed(1) + "px");
+      const popT = clamp((p - i * 0.014) / 0.34, 0, 1);
+      const pop = easeOutBack(popT);
+      const dist = clamp(pop, 0, 1);
+      const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
+      const ox = Math.cos(angle) * radius * dist;
+      const oy = Math.sin(angle) * ry * dist;
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const gx = col * (cardW + gap) - gridW / 2 + cardW / 2;
+      const gy = row * (cardH + gap) - gridH / 2 + cardH / 2;
+      let x, y, scale, rot;
+      if (p < settleAt) {
+        x = ox;
+        y = oy;
+        scale = 0.78 + dist * 0.22;
+        rot = (i - (n - 1) / 2) * 2.2 * (1 - dist);
+      } else {
+        const t = easeInOut(clamp((p - settleAt) / (1 - settleAt), 0, 1));
+        x = lerp(ox, gx, t);
+        y = lerp(oy, gy, t);
+        scale = lerp(0.78 + dist * 0.22, 1, t);
+        rot = lerp((i - (n - 1) / 2) * 2.2 * (1 - dist), 0, t);
+      }
+      card.style.setProperty("--ox", x.toFixed(1) + "px");
+      card.style.setProperty("--oy", y.toFixed(1) + "px");
+      card.style.setProperty("--pop", scale.toFixed(3));
+      card.style.setProperty("--rot", rot.toFixed(2) + "deg");
+      card.style.zIndex = String(40 + i);
+    });
+  }
+
+  function updateDeck(scene, p) {
+    const stage = $(".deck", scene);
+    const cards = $$(".pkg", stage);
+    const n = cards.length;
+    if (!n) return;
+    const sw = stage.clientWidth;
+    const sh = stage.clientHeight || 500;
+    const cols = sw < 680 ? 1 : sw < 1040 ? 2 : 3;
+    const rows = Math.ceil(n / cols);
+    const gap = 14;
+    const cardW = Math.max(200, Math.min(340, (sw - gap * (cols - 1)) / cols));
+    const cardH = Math.max(240, Math.min(440, (sh - gap * (rows - 1)) / rows));
+    stage.style.setProperty("--cw", cardW.toFixed(1) + "px");
+    stage.style.setProperty("--ch", cardH.toFixed(1) + "px");
+    const gridW = cols * cardW + (cols - 1) * gap;
+    const gridH = rows * cardH + (rows - 1) * gap;
+    const mid = (n - 1) / 2;
+    cards.forEach((card, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const gx = col * (cardW + gap) - gridW / 2 + cardW / 2;
+      const gy = row * (cardH + gap) - gridH / 2 + cardH / 2;
+      const stackX = (i - mid) * 2;
+      const stackY = (i - mid) * 6;
+      const stackR = (i - mid) * 2.5;
+      const fanX = (i - mid) * Math.min(86, sw * 0.08);
+      const fanY = Math.abs(i - mid) * 12;
+      const fanR = (i - mid) * 7;
+      let x, y, rot, rx, ry;
+      if (p < 0.46) {
+        const t = easeInOut(p / 0.46);
+        x = lerp(stackX, fanX, t);
+        y = lerp(stackY, fanY, t);
+        rot = lerp(stackR, fanR, t);
+        rx = lerp(2, 16, t);
+        ry = lerp(0, (i - mid) * 5, t);
+      } else {
+        const t = easeInOut((p - 0.46) / 0.54);
+        x = lerp(fanX, gx, t);
+        y = lerp(fanY, gy, t);
+        rot = lerp(fanR, 0, t);
+        rx = lerp(16, 0, t);
+        ry = lerp((i - mid) * 5, 0, t);
+      }
+      const depth = Math.sin(Math.min(p, 1) * Math.PI) * 36;
+      card.style.setProperty("--x", x.toFixed(1) + "px");
+      card.style.setProperty("--y", y.toFixed(1) + "px");
+      card.style.setProperty("--rot", rot.toFixed(2) + "deg");
+      card.style.setProperty("--rx", rx.toFixed(2) + "deg");
+      card.style.setProperty("--ry", ry.toFixed(2) + "deg");
+      card.style.setProperty("--z", depth.toFixed(1) + "px");
+      card.style.zIndex = String(20 + i);
+    });
+  }
+
+  function updateTunnel(scene, p) {
+    const items = $$(".tunnel-card", scene);
+    items.forEach((item, i) => {
+      const local = clamp((p - i * 0.08) / 0.34, 0, 1);
+      const show = easeOutBack(Math.min(local, 1));
+      const settled = clamp(show, 0, 1);
+      item.style.setProperty("--ty", ((1 - settled) * 36).toFixed(1) + "px");
+      item.style.setProperty("--op", settled.toFixed(3));
+      item.style.setProperty("--sc", (0.96 + settled * 0.04).toFixed(3));
+      item.style.zIndex = String(10 + i);
+    });
+  }
+
+  function updateH(scene, p) {
+    const track = $(".h-track", scene);
+    const distance = Number(scene.dataset.distance || 0);
+    track.style.transform = "translate3d(" + (-p * distance).toFixed(1) + "px,0,0)";
+    $$(".panel", track).forEach((panel) => {
+      const r = panel.getBoundingClientRect();
+      const center = r.left + r.width / 2 - window.innerWidth / 2;
+      const dist = Math.min(Math.abs(center) / window.innerWidth, 1);
+      panel.style.setProperty("--ps", (1.045 - dist * 0.09).toFixed(3));
+      const img = $("img", panel);
+      if (img) img.style.setProperty("--px", ((-center) * 0.1).toFixed(1) + "px");
+    });
+  }
+
+  function updateRoute(scene, p) {
+    if (!route) return;
+    const len = route.getTotalLength();
+    if (!len) return;
+    const t = clamp(p, 0.001, 0.999);
+    const pt = route.getPointAtLength(len * t);
+    const ahead = route.getPointAtLength(len * Math.min(0.999, t + 0.012));
+    const ang = Math.atan2(ahead.y - pt.y, ahead.x - pt.x) * 180 / Math.PI;
+    $("#plane").setAttribute("transform", "translate(" + pt.x.toFixed(1) + " " + pt.y.toFixed(1) + ") rotate(" + ang.toFixed(1) + ")");
+    $$(".mile", scene).forEach((mile) => {
+      const at = Number(mile.dataset.at || 0);
+      mile.style.setProperty("--in", clamp((p - at) / 0.08, 0, 1).toFixed(3));
+    });
+  }
+
+  /* Infinite notes marquee — free scroll section, no pin */
+  const notesStage = $("#notes-stage");
+  const notesRail = $("#reel");
+  const notesMarquee = {
+    offset: 0,
+    half: 0,
+    speed: 0.42,
+    vel: 0,
+    paused: false,
+    dragging: false,
+    visible: false,
+    primed: false
+  };
+
+  function measureNotesHalf() {
+    if (!notesRail) return;
+    const kids = $$(".note", notesRail);
+    const mid = Math.floor(kids.length / 2);
+    if (mid < 1 || !kids[mid]) {
+      notesMarquee.half = notesRail.scrollWidth / 2;
+      return;
+    }
+    notesMarquee.half = kids[mid].offsetLeft;
+  }
+
+  function wrapNotesOffset() {
+    const half = notesMarquee.half;
+    if (half <= 0) return;
+    while (notesMarquee.offset <= -half) notesMarquee.offset += half;
+    while (notesMarquee.offset > 0) notesMarquee.offset -= half;
+  }
+
+  function applyNotesTx() {
+    if (!notesRail) return;
+    notesRail.style.setProperty("--tx", notesMarquee.offset.toFixed(2) + "px");
+  }
+
+  function initNotesMarquee() {
+    if (!notesStage || !notesRail || notesMarquee.primed) return;
+    const originals = $$(".note", notesRail);
+    if (!originals.length) return;
+    originals.forEach((note) => {
+      const clone = note.cloneNode(true);
+      clone.setAttribute("aria-hidden", "true");
+      clone.querySelectorAll("[aria-label]").forEach((el) => el.removeAttribute("aria-label"));
+      notesRail.appendChild(clone);
+    });
+    notesMarquee.primed = true;
+    measureNotesHalf();
+    applyNotesTx();
+
+    if (reduced) return;
+
+    const io = new IntersectionObserver((entries) => {
+      notesMarquee.visible = entries.some((e) => e.isIntersecting);
+    }, { threshold: 0.12 });
+    io.observe(notesStage);
+
+    notesStage.addEventListener("pointerenter", () => { notesMarquee.paused = true; });
+    notesStage.addEventListener("pointerleave", () => {
+      if (!notesMarquee.dragging) notesMarquee.paused = false;
+    });
+
+    let lastX = 0;
+    notesStage.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      notesMarquee.dragging = true;
+      notesMarquee.paused = true;
+      notesMarquee.vel = 0;
+      lastX = e.clientX;
+      notesStage.classList.add("is-dragging");
+      notesStage.setPointerCapture(e.pointerId);
+    });
+    notesStage.addEventListener("pointermove", (e) => {
+      if (!notesMarquee.dragging) return;
+      const dx = e.clientX - lastX;
+      lastX = e.clientX;
+      notesMarquee.offset += dx;
+      notesMarquee.vel = dx;
+      wrapNotesOffset();
+      applyNotesTx();
+    });
+    const endDrag = (e) => {
+      if (!notesMarquee.dragging) return;
+      notesMarquee.dragging = false;
+      notesStage.classList.remove("is-dragging");
+      try { notesStage.releasePointerCapture(e.pointerId); } catch (_) {}
+      notesMarquee.paused = false;
+    };
+    notesStage.addEventListener("pointerup", endDrag);
+    notesStage.addEventListener("pointercancel", endDrag);
+
+    notesStage.addEventListener("wheel", (e) => {
+      if (Math.abs(e.deltaX) < 1 && Math.abs(e.deltaY) < 1) return;
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      notesMarquee.offset -= delta;
+      wrapNotesOffset();
+      applyNotesTx();
+      notesMarquee.paused = true;
+      clearTimeout(notesStage._resume);
+      notesStage._resume = setTimeout(() => { notesMarquee.paused = false; }, 900);
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) e.preventDefault();
+    }, { passive: false });
+  }
+
+  function tickNotesMarquee() {
+    if (!notesRail || reduced || !notesMarquee.primed) return;
+    if (notesMarquee.dragging) return;
+    if (Math.abs(notesMarquee.vel) > 0.15) {
+      notesMarquee.offset += notesMarquee.vel;
+      notesMarquee.vel *= 0.94;
+      wrapNotesOffset();
+      applyNotesTx();
+      return;
+    }
+    notesMarquee.vel = 0;
+    if (!notesMarquee.visible || notesMarquee.paused) return;
+    notesMarquee.offset -= notesMarquee.speed;
+    wrapNotesOffset();
+    applyNotesTx();
+  }
+
+  function updatePrice(scene, p) {
+    $$(".tier", scene).forEach((tier, i) => {
+      const local = clamp((p - i * 0.12) / 0.55, 0, 1);
+      const e = easeOutElastic(local);
+      tier.style.setProperty("--y", ((1 - e) * 130).toFixed(2) + "px");
+      tier.style.setProperty("--sc", (0.96 + Math.min(e, 1.04) * 0.04).toFixed(3));
+    });
+  }
+
+  function updatePageChrome(y) {
+    const max = Math.max(1, root.scrollHeight - window.innerHeight);
+    const page = clamp(y / max, 0, 1);
+    root.style.setProperty("--page", page.toFixed(4));
+    nav.classList.toggle("is-scrolled", y > 20);
+    toTop.classList.toggle("is-on", y > 700);
+  }
+
+  const heroVideo = $("#hero-video");
+  let heroPlaying = false;
+  function syncHeroVideo(progress, visible) {
+    if (!heroVideo || reduced) return;
+    const shouldPlay = visible && progress < 0.72 && !document.hidden;
+    if (shouldPlay && !heroPlaying) {
+      const play = heroVideo.play();
+      if (play && play.then) play.then(() => { heroPlaying = true; }).catch(() => {});
+      else heroPlaying = true;
+    } else if (!shouldPlay && heroPlaying) {
+      heroVideo.pause();
+      heroPlaying = false;
+    }
+  }
+
+  function update() {
+    const y = window.scrollY;
+    const vh = window.innerHeight;
+    updatePageChrome(y);
+    if (!reduced) {
+      mx += (tmx - mx) * 0.07;
+      my += (tmy - my) * 0.07;
+      root.style.setProperty("--mx", mx.toFixed(4));
+      root.style.setProperty("--my", my.toFixed(4));
+      if (cursor && cursorOn) {
+        cx += (tcx - cx) * 0.22;
+        cy += (tcy - cy) * 0.22;
+        const s = hovering ? 1.75 : 1;
+        cursor.style.opacity = "1";
+        cursor.style.transform = "translate3d(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px,0) translate(-50%,-50%) scale(" + s + ")";
+      }
+      if (introOrb) {
+        if (!orbActive) { tox += (0 - tox) * 0.06; toy += (0 - toy) * 0.06; }
+        oox += (tox - oox) * 0.1;
+        ooy += (toy - ooy) * 0.1;
+        introOrb.style.setProperty("--ox", oox.toFixed(1) + "px");
+        introOrb.style.setProperty("--oy", ooy.toFixed(1) + "px");
+      }
+    }
+    $$("[data-scene]").forEach((scene) => {
+      const rect = scene.getBoundingClientRect();
+      const enter = clamp(1 - rect.top / (vh * 0.7), 0, 1);
+      const p = progressFor(scene, rect, vh);
+      scene.style.setProperty("--enter", enter.toFixed(4));
+      scene.style.setProperty("--progress", p.toFixed(4));
+      if (scene.dataset.scene === "hero") {
+        syncHeroVideo(p, rect.bottom > 0 && rect.top < vh);
+      }
+      if (reduced || scene.classList.contains("unpin")) return;
+      if (rect.bottom < -vh || rect.top > vh * 1.4) return;
+      const kind = scene.dataset.scene;
+      if (kind === "orbit") updateOrbit(scene, p);
+      else if (kind === "deck") updateDeck(scene, p);
+      else if (kind === "tunnel") updateTunnel(scene, p);
+      else if (kind === "hscroll") updateH(scene, p);
+      else if (kind === "route") updateRoute(scene, p);
+      else if (kind === "price") updatePrice(scene, p);
+    });
+    tickNotesMarquee();
+  }
+
+  let raf = 0;
+  function loop(time) {
+    if (lenis) lenis.raf(time);
+    update();
+    raf = requestAnimationFrame(loop);
+  }
+
+  let booted = false;
+  function boot() {
+    if (booted) return;
+    booted = true;
+    if (!reduced) root.classList.add("is-motion");
+    measure();
+    initNotesMarquee();
+    if (lenis) lenis.resize();
+    update();
+    root.classList.add("is-ready");
+    if (pre) {
+      pre.classList.add("is-done");
+      pre.setAttribute("aria-hidden", "true");
+      setTimeout(() => pre.remove(), reduced ? 0 : 900);
+    }
+    if (!reduced) raf = requestAnimationFrame(loop);
+  }
+
+  if (document.readyState === "complete") boot();
+  else window.addEventListener("load", boot);
+  setTimeout(boot, 2600);
+
+  let resizeTimer = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      measure();
+      measureNotesHalf();
+      wrapNotesOffset();
+      applyNotesTx();
+      if (lenis) lenis.resize();
+      update();
+    }, 140);
+  }, { passive: true });
+  narrow.addEventListener("change", () => {
+    measure();
+    measureNotesHalf();
+    wrapNotesOffset();
+    applyNotesTx();
+    if (lenis) lenis.resize();
+    update();
+  });
+
+  if (reduced) {
+    window.addEventListener("scroll", () => updatePageChrome(window.scrollY), { passive: true });
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (reduced) return;
+    if (document.hidden) {
+      cancelAnimationFrame(raf);
+      if (heroVideo && heroPlaying) { heroVideo.pause(); heroPlaying = false; }
+    } else {
+      raf = requestAnimationFrame(loop);
+    }
+  });
+})();
+</script>
+<!--
+  Scroll-linked transitions
+  1. Hero → couple beach film expands via clip-path; copy exits left; cream wipe rises into Intro.
+  2. Intro → editorial quiet room: scrubbed line-mask headline, staggered body opacity/y, champagne rule draw, magnetic soft orb.
+  3. Destinations → pinned circle orbit with a scale bounce, then rotateY flip to the back.
+  4. Packages → pinned stack, fan, then a 3-column grid with rotateX/rotateY and translateZ.
+  5. Why → 2×2 atelier grid settles in with scroll; counters count up via IntersectionObserver.
+  6. Experiences → vertical scroll drives a horizontal track; centered panels scale up, images parallax inside.
+  7. Gallery → figures explode from translateZ depth into a bento masonry; rotation settles to 0.
+  8. Itinerary → SVG flight path draws with stroke-dashoffset; days slide in from alternating sides.
+  9. Testimonials → free section; infinite horizontal marquee of letter notes (drag / hover pause).
+  10. Pricing → tiers rise with a staggered elastic ease; Gold keeps a shimmering border.
+  11. Contact → a circle clip-path opens from the center onto the booking form.
+  Footer → wave drift, social pop, heart lift on Back to top. Not a pinned scrub.
+-->
+</body>
+</html>

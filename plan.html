@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Write to the atelier — tell us when you land and what the week should feel like.">
+<meta name="theme-color" content="#071018">
+<title>Plan My Honeymoon — Elysian Escapes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/lenis@1.3.27/dist/lenis.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="progress" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<header class="nav" id="nav">
+  <a class="logo" href="index.html" aria-label="Elysian Escapes, home">
+    <span class="logo-mark" aria-hidden="true">E</span>
+    <span><strong>Elysian Escapes</strong></span>
+  </a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="Menu"><span></span></button>
+  <nav id="nav-menu" class="nav-menu" aria-label="Primary">
+    <a href="destinations.html">Destinations</a>
+    <a href="journeys.html">Journeys</a>
+    <a href="experiences.html">Experiences</a>
+    <a href="stories.html">Stories</a>
+    <a href="tiers.html">Tiers</a>
+    <a class="btn btn-solid magnetic btn-nav" href="plan.html">Plan My Honeymoon</a>
+  </nav>
+</header>
+
+<main id="main" class="page-main">
+  <header class="page-hero">
+    <div class="page-hero-media" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1800&q=80" alt="">
+    </div>
+    <div class="page-hero-copy">
+      <p class="eyebrow">06 — The desk</p>
+      <h1>Tell us when <em>you land</em></h1>
+      <p class="lede">One note. A planner writes within one working day. Nothing is handed to a call centre.</p>
+    </div>
+  </header>
+  <section class="section soft">
+    <div class="plan-layout">
+      <aside class="plan-aside" data-reveal="left">
+        <div class="stat"><strong>1</strong><span>planner from first note to landing</span></div>
+        <div class="stat"><strong>24h</strong><span>typical reply on a working day</span></div>
+        <div class="stat"><strong>10</strong><span>shores we will actually stand behind</span></div>
+        <p style="margin:0;font-weight:300;color:rgba(244,239,230,.58);line-height:1.7">Prefer a call? The atelier line is <a href="tel:+18005550199">+1 (800) 555-0199</a>.</p>
+      </aside>
+      <div class="plan-card" data-reveal="right">
+        <form id="plan-form" novalidate>
+          <div class="form-grid">
+            <div class="field"><label for="names-plan">Your names</label><input id="names-plan" name="names" required autocomplete="name"></div>
+            <div class="field"><label for="email-plan">Email</label><input id="email-plan" name="email" type="email" required autocomplete="email"></div>
+            <div class="field"><label for="phone-plan">Phone</label><input id="phone-plan" name="phone" type="tel" required autocomplete="tel"></div>
+            <div class="field"><label for="dest-plan">Destination</label>
+              <select id="dest-plan" name="destination" required>
+                <option value="" disabled selected>Choose</option>
+                <option>Maldives</option><option>Bali</option><option>Santorini</option>
+                <option>Paris</option><option>Swiss Alps</option><option>Dubai</option>
+                <option>Kerala</option><option>Phuket</option><option>Venice</option><option>Maui</option>
+                <option>Not sure yet</option>
+              </select>
+            </div>
+            <div class="field"><label for="date-plan">Travel date</label><input id="date-plan" name="date" type="date" required></div>
+            <div class="field"><label for="budget-plan">Budget for two</label>
+              <select id="budget-plan" name="budget" required>
+                <option value="" disabled selected>Choose</option>
+                <option>Under $4,000</option>
+                <option>$4,000–7,000</option>
+                <option>$7,000–12,000</option>
+                <option>Above $12,000</option>
+              </select>
+            </div>
+            <div class="field wide"><label for="feel-plan">What the week should feel like</label><textarea id="feel-plan" name="feel" required></textarea></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-solid magnetic" type="submit">Send the note</button>
+            <p class="form-note">We reply within one working day.</p>
+          </div>
+          <p id="form-live" aria-live="polite"></p>
+        </form>
+        <div id="form-success" hidden>
+          <h2 style="font-family:var(--display);font-weight:500;margin:0 0 10px">We have the dates.</h2>
+          <p style="margin:0;font-weight:300;color:rgba(244,239,230,.7)">A planner will write to you within one working day. Nothing was stored on this device.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="foot-grid">
+    <div>
+      <a class="logo" href="index.html"><span class="logo-mark" aria-hidden="true">E</span><span><strong>ELYSIAN</strong></span></a>
+      <p>Honeymoons composed by hand. By appointment in Paris, with planners in Venice and the Maldives.</p>
+    </div>
+    <div>
+      <h3>The map</h3>
+      <a href="destinations.html">Destinations</a><br>
+      <a href="journeys.html">Journeys</a><br>
+      <a href="experiences.html">Experiences</a><br>
+      <a href="stories.html">Stories</a><br>
+      <a href="tiers.html">Tiers</a>
+    </div>
+    <div>
+      <h3>Visit</h3>
+      <p>Atelier line<br><a href="tel:+18005550199">+1 (800) 555-0199</a></p>
+      <p><a href="mailto:atelier@elysianescapes.example">atelier@elysianescapes.example</a></p>
+    </div>
+    <div>
+      <h3>Notes, occasionally</h3>
+      <p>A letter when a room opens or a season turns. No weekly noise.</p>
+      <form class="news" id="news-form">
+        <input id="news-email" type="email" required placeholder="Email address" autocomplete="email" style="width:100%;background:transparent;border:0;border-bottom:1px solid rgba(231,211,176,.35);padding:8px 0;margin-bottom:10px;color:inherit">
+        <button class="btn btn-solid magnetic" type="submit">Join</button>
+      </form>
+      <p id="news-note" aria-live="polite"></p>
+    </div>
+  </div>
+  <div class="legal">
+    <span>© 2026 Elysian Escapes. Honeymoons composed by hand.</span>
+    <a href="index.html">Home</a>
+  </div>
+</footer>
+<button class="to-top" id="to-top" type="button">Top</button>
+<a class="wa" href="https://wa.me/18005550199?text=Hello%20Elysian%20Escapes" target="_blank" rel="noopener noreferrer" aria-label="Chat with a planner on WhatsApp">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18.5 6.2 15A7.5 7.5 0 1 1 9 18.2L5 18.5z"/><path d="M9 10.5c.2 1.6 2.2 3.2 3.6 3.5.4 0 1.2-.4 1.4-.9l.2-.6-1-.6c-.2 0-.5.1-.8.4-.2.2-.6.3-.7.1-.4-.3-1-1-1.1-1.2-.1-.2 0-.4.2-.6l.5-.6c.1-.2 0-.4 0-.5L10.6 8c-.2-.4-.5-.4-.7-.4H9.4c-.3 0-.7.2-.8.6-.2.8.1 1.8.4 2.3z"/></svg>
+</a>
+<script src="https://unpkg.com/lenis@1.3.27/dist/lenis.min.js"></script>
+<script src="js/pages.js"></script>
+</body>
+</html>
