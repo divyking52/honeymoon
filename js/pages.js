@@ -5,15 +5,26 @@
   const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
   const root = document.documentElement;
 
+  const narrow = window.matchMedia("(max-width: 800px)");
+  const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   let lenis = null;
-  if (!reduced && typeof Lenis === "function") {
-    lenis = new Lenis({
-      autoRaf: false,
-      duration: 1.15,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true
-    });
+  function syncLenis() {
+    const want = !reduced && !narrow.matches && typeof Lenis === "function";
+    if (want && !lenis) {
+      lenis = new Lenis({
+        autoRaf: false,
+        duration: 1.15,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true
+      });
+    } else if (!want && lenis) {
+      try { lenis.destroy(); } catch (_) {}
+      lenis = null;
+      document.documentElement.classList.remove("lenis", "lenis-smooth");
+    }
   }
+  syncLenis();
+  narrow.addEventListener("change", syncLenis);
 
   const nav = $("#nav");
   const toggle = $(".nav-toggle", nav);
@@ -87,6 +98,14 @@
       if (tier) params.set("tier", tier);
       const q = params.toString();
       window.location.href = "plan.html" + (q ? "?" + q : "");
+    });
+  });
+
+  $$(".dest-card").forEach((card) => {
+    card.addEventListener("click", (e) => {
+      if (e.target.closest("a, button")) return;
+      if (!narrow.matches && fine) return;
+      card.classList.toggle("is-flipped");
     });
   });
 

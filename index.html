@@ -699,7 +699,8 @@ html.is-motion .flip {
   box-shadow: 0 18px 40px rgba(0,0,0,.28);
 }
 html.is-motion .orbit-card:hover .flip,
-html.is-motion .orbit-card:focus-within .flip {
+html.is-motion .orbit-card:focus-within .flip,
+html.is-motion .orbit-card.is-flipped .flip {
   transform: rotateY(180deg);
 }
 .face { border-radius: 18px; overflow: hidden; height: 100%; }
@@ -1284,10 +1285,39 @@ html.is-motion .plan-card {
   .g1, .g3, .g5 { min-height: 300px; }
 }
 @media (max-width: 980px) {
-  .intro-stage { grid-template-columns: 1fr; padding-bottom: 8vh; gap: 28px; }
-  .intro-void { height: min(58vw, 380px); order: -1; }
-  .intro-reveal { width: min(100%, 340px); }
-  .intro-mark { top: auto; bottom: 4%; font-size: clamp(4rem, 22vw, 7rem); opacity: .55; }
+  .intro-stage {
+    grid-template-columns: 1fr;
+    height: auto;
+    padding: calc(var(--nav-h) + 28px) 7vw 48px;
+    gap: 22px;
+    align-items: start;
+  }
+  .intro-void {
+    height: auto;
+    order: -1;
+    width: 100%;
+    padding: 8px 0 4px;
+  }
+  .intro-reveal { width: min(78vw, 320px); }
+  .intro-mark { display: none; }
+  .intro-copy { z-index: 2; max-width: none; }
+  .intro-whisper {
+    position: static;
+    margin: 14px 0 0;
+    text-align: center;
+    opacity: .55;
+    transform: none;
+  }
+  .intro-reveal-cap {
+    left: 10%; right: 10%; bottom: 12%;
+    font-size: clamp(1rem, 4.2vw, 1.25rem);
+    text-shadow: 0 2px 12px rgba(7, 16, 24, .65), 0 8px 28px rgba(7, 16, 24, .4);
+  }
+  .intro-reveal-veil {
+    background:
+      radial-gradient(circle at 50% 50%, transparent 38%, rgba(253, 247, 242, .2) 78%),
+      linear-gradient(180deg, transparent 40%, rgba(7, 16, 24, .55) 100%);
+  }
 }
 @media (max-width: 860px) {
   .scene-why .sec-head { grid-template-columns: 1fr; gap: 12px; }
@@ -1326,17 +1356,88 @@ html.is-motion .plan-card {
   .mile:nth-child(odd) { --from: -28; }
   .form-grid { grid-template-columns: 1fr; }
   .field.wide { grid-column: auto; }
+  .sec-head { padding-right: 0; }
+  .to-top { left: auto; right: 14px; bottom: 78px; }
+  .wa { right: 14px; bottom: 14px; width: 52px; height: 52px; }
+}
+@media (max-width: 800px) {
+  /* Readable unpinned intro — no sticky clip, no scroll-scrubbed hiding */
+  html.is-motion .scene-intro,
+  html.is-motion .scene-intro.unpin { height: auto !important; }
+  html.is-motion .scene-intro > .sticky,
+  html.is-motion .scene-intro.unpin > .sticky {
+    position: relative !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block;
+  }
+  .intro-stage { height: auto; min-height: 0; }
+  .intro-eye,
+  .intro-line > span,
+  .intro-p,
+  .intro-reveal,
+  .intro-reveal-cap,
+  .intro-whisper,
+  .intro-mark {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .intro-rule { transform: scaleX(1) !important; }
+  .intro-reveal {
+    clip-path: circle(48% at 50% 50%) !important;
+    border-radius: 50%;
+  }
+  .intro-reveal img { transform: none !important; }
+  .intro-reveal::before { animation: none; opacity: 0; }
+  .intro-title { font-size: clamp(2rem, 8.5vw, 2.8rem); margin-bottom: 18px; }
+  .intro-body { gap: 14px; }
+  .intro-p { font-size: 1rem; line-height: 1.65; color: rgba(7, 16, 24, .78); }
+  .intro-mark { display: none !important; }
+  /* Hero stacks cleanly without pin */
+  html.is-motion .scene-hero,
+  html.is-motion .scene-hero.unpin { height: auto !important; }
+  html.is-motion .scene-hero > .sticky,
+  html.is-motion .scene-hero.unpin > .sticky {
+    position: relative !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .hero-stage { min-height: 0; height: auto; }
+  .hero-film {
+    position: relative;
+    min-height: 42vh;
+    clip-path: none !important;
+    transform: none !important;
+  }
+  .hero-panel {
+    transform: none !important;
+    opacity: 1 !important;
+    width: 100%;
+    padding: 28px 6vw 40px;
+    background: var(--ink);
+  }
+  .hero-aside { max-width: none; }
 }
 @media (max-width: 640px) {
-  .deck, .tiers, .orbit-grid { grid-template-columns: 1fr; }
+  .deck, .tiers { grid-template-columns: 1fr; }
+  .orbit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .tunnel { grid-template-columns: 1fr; min-height: 0; }
   .counters { grid-template-columns: 1fr; }
   .hero-brand { font-size: clamp(2.5rem, 12vw, 3.5rem); }
   .hero-display .hero-line--soft { font-size: clamp(.95rem, 3.8vw, 1.15rem); letter-spacing: .28em; }
   .hero-display .hero-line--strong { font-size: clamp(2rem, 9vw, 2.7rem); }
   .hero-mast { margin-bottom: 22px; gap: 0 12px; }
+  .hero-index { font-size: 8px; letter-spacing: .32em; }
   .form-actions { flex-direction: column; align-items: stretch; }
   .foot-grid { grid-template-columns: 1fr; }
+  .intro-stage { padding-left: 6vw; padding-right: 6vw; }
+  .intro-reveal { width: min(72vw, 280px); }
+  .intro-reveal-cap { bottom: 10%; font-size: 1rem; }
+  .nav .logo strong { font-size: 10px; letter-spacing: .2em; }
+  .dest-meta { padding: 28px 10px 10px; }
+  .dest-meta h3 { font-size: 1.15rem; }
+  .dest-meta p { font-size: .78rem; }
 }
 
 /* Narrow screens leave the heavy pinned layouts and fall back to readable stacks */
@@ -1344,19 +1445,257 @@ html.is-motion .scene.unpin { height: auto !important; }
 html.is-motion .scene.unpin > .sticky {
   position: relative !important; height: auto !important; overflow: visible !important; display: block;
 }
-html.is-motion .scene.unpin .orbit-grid { display: grid; height: auto; }
+html.is-motion .scene.unpin.scene-orbit > .sticky {
+  padding: 88px 4vw 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+html.is-motion .scene.unpin .orbit-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  height: auto;
+  min-height: 0;
+  flex: none;
+  perspective: none;
+  width: 100%;
+}
 html.is-motion .scene.unpin .deck { display: grid; height: auto; }
 html.is-motion .scene.unpin .pkg,
-html.is-motion .scene.unpin .orbit-card,
 html.is-motion .scene.unpin .g-item,
 html.is-motion .scene.unpin .tier {
   position: relative !important; left: auto !important; top: auto !important;
   width: auto !important; height: auto !important; aspect-ratio: 3/4;
   transform: none !important; opacity: 1 !important; filter: none !important;
 }
+html.is-motion .scene.unpin .orbit-card {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  width: auto !important;
+  height: auto !important;
+  aspect-ratio: 3 / 4;
+  transform: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  will-change: auto;
+}
+html.is-motion .scene.unpin .orbit-card .flip {
+  position: absolute;
+  inset: 0;
+  height: auto;
+}
+html.is-motion .scene.unpin .orbit-card .face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+html.is-motion .scene.unpin .orbit-card .face.back {
+  display: flex !important;
+  transform: rotateY(180deg);
+}
+html.is-motion .scene.unpin .orbit-card .face.front img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 html.is-motion .scene.unpin .pkg { aspect-ratio: auto; }
-html.is-motion .scene.unpin .face.back { display: none; }
-html.is-motion .scene.unpin .masonry { height: auto; display: grid; }
+html.is-motion .scene.unpin .masonry {
+  height: auto; display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: none;
+  gap: 12px;
+  min-height: 0;
+  perspective: none;
+}
+html.is-motion .scene.unpin .g-item {
+  position: relative !important;
+  min-height: 220px;
+  aspect-ratio: 4/3;
+  transform: none !important;
+  opacity: 1 !important;
+}
+html.is-motion .scene.unpin .g-item figcaption {
+  opacity: 1; transform: none;
+  font-size: 1.05rem;
+}
+html.is-motion .scene.unpin .intro-stage { height: auto; }
+html.is-motion .scene.unpin .hero-stage { height: auto; min-height: 0; }
+html.is-motion .scene.unpin .h-viewport {
+  display: block; width: 100%; height: auto !important;
+  overflow: visible !important; flex: none;
+}
+html.is-motion .scene.unpin .h-track {
+  display: flex; flex-direction: column; gap: 16px;
+  width: 100%; height: auto; padding: 0;
+  transform: none !important;
+}
+html.is-motion .scene.unpin .panel {
+  position: relative;
+  min-width: 0; width: 100%; flex: none;
+  height: auto; min-height: 280px;
+  transform: none !important;
+}
+html.is-motion .scene.unpin .panel .media { height: min(52vh, 360px); }
+html.is-motion .scene.unpin .panel img { transform: none !important; }
+html.is-motion .scene.unpin.scene-exp > .sticky,
+html.is-motion .scene.unpin.scene-deck > .sticky,
+html.is-motion .scene.unpin.scene-gallery > .sticky,
+html.is-motion .scene.unpin.scene-price > .sticky,
+html.is-motion .scene.unpin.scene-why > .sticky {
+  padding: 88px 5vw 40px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+/* Plan form — open fully on mobile (no tiny curtain hole) */
+html.is-motion .scene.unpin.scene-plan {
+  height: auto !important;
+}
+html.is-motion .scene.unpin.scene-plan > .sticky {
+  position: relative !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  padding: 88px 0 48px;
+  display: block;
+}
+html.is-motion .scene.unpin .curtain {
+  position: relative !important;
+  inset: auto !important;
+  clip-path: none !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 4vw 24px;
+}
+html.is-motion .scene.unpin .curtain .bg {
+  position: relative;
+  min-height: 180px;
+  max-height: 240px;
+  overflow: hidden;
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+html.is-motion .scene.unpin .curtain .bg img {
+  width: 100%; height: 100%; object-fit: cover; min-height: 180px;
+}
+html.is-motion .scene.unpin .plan-intro {
+  position: relative !important;
+  inset: auto !important;
+  opacity: 1 !important;
+  transform: none !important;
+  padding: 0 5vw 20px;
+  text-align: left;
+  place-items: start;
+}
+html.is-motion .scene.unpin .plan-intro h2 {
+  font-size: clamp(2rem, 9vw, 2.8rem);
+}
+html.is-motion .scene.unpin .plan-card {
+  position: relative !important;
+  width: 100%;
+  opacity: 1 !important;
+  transform: none !important;
+  margin: 0;
+}
+/* Itinerary miles full-width on mobile */
+html.is-motion .scene.unpin .mile,
+body.is-narrow .mile {
+  --in: 1;
+  width: 100% !important;
+  max-width: none;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+html.is-motion .scene.unpin .route-svg,
+body.is-narrow .route-svg { display: none; }
+/* Stories — stack letters instead of wide marquee */
+body.is-narrow .notes-stage,
+.notes-stage.is-stacked {
+  overflow: visible;
+  cursor: auto;
+  touch-action: auto;
+}
+body.is-narrow .notes-stage::before,
+body.is-narrow .notes-stage::after,
+.notes-stage.is-stacked::before,
+.notes-stage.is-stacked::after { display: none; }
+body.is-narrow .notes-rail,
+.notes-stage.is-stacked .notes-rail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  width: 100%;
+  max-width: 100%;
+  padding: 0 5vw 8px;
+  transform: none !important;
+}
+body.is-narrow .notes-rail .note[aria-hidden="true"],
+.notes-stage.is-stacked .notes-rail .note[aria-hidden="true"] { display: none; }
+body.is-narrow .note,
+.notes-stage.is-stacked .note {
+  flex: none;
+  width: 100%;
+  min-height: 0;
+}
+body.is-narrow .hero-feature {
+  position: static;
+  margin: 12px 6vw 0;
+  display: inline-flex;
+}
+body.is-narrow .scroll-ind { display: none; }
+body.is-narrow .hero-wipe { display: none; }
+body.is-narrow .hero-stage,
+body.is-narrow .hero-film {
+  overflow: hidden;
+  max-width: 100%;
+  width: 100%;
+  transform: none !important;
+}
+body.is-narrow .hero-panel {
+  transform: none !important;
+  opacity: 1 !important;
+  width: 100% !important;
+  max-width: none;
+  left: auto;
+}
+body.is-narrow .sec-head { padding-left: 0; padding-right: 0; }
+body.is-narrow .sec-head h2 { font-size: clamp(1.8rem, 8vw, 2.6rem); }
+body.is-narrow .tiers { grid-template-columns: 1fr !important; }
+body.is-narrow .tier { transform: none !important; opacity: 1 !important; }
+body.is-narrow .why-layout { grid-template-columns: 1fr; }
+body.is-narrow .tunnel { min-height: 0; height: auto; }
+body.is-narrow .counters { grid-template-columns: 1fr; }
+body.is-narrow .note {
+  flex-basis: auto;
+  width: 100%;
+  min-height: 0;
+  padding: 28px 22px 22px;
+}
+body.is-narrow .note blockquote { font-size: clamp(1.15rem, 5.2vw, 1.4rem); }
+body.is-narrow .panel-copy {
+  padding: 18px 16px 20px;
+}
+body.is-narrow .panel-copy h3 { font-size: clamp(1.55rem, 6.5vw, 2rem); }
+body.is-narrow .form-grid { grid-template-columns: 1fr !important; }
+body.is-narrow .field.wide { grid-column: auto; }
+body.is-narrow .form-actions {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+body.is-narrow footer,
+body.is-narrow .scene-plan {
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+}
+body.is-narrow .pkg .pkg-foot {
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
 /* Readable layout if motion is reduced — pins and hidden starts never apply */
 @media (prefers-reduced-motion: reduce) {
@@ -2172,20 +2511,28 @@ html.is-motion .scene.unpin .masonry { height: auto; display: grid; }
   const $ = (sel, ctx) => (ctx || document).querySelector(sel);
   const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
 
-  /* Lenis — skipped when the user prefers reduced motion */
+  /* Lenis — skipped when reduced motion or narrow (native touch scroll is more reliable) */
   let lenis = null;
-  if (!reduced && typeof Lenis === "function") {
-    lenis = new Lenis({
-      autoRaf: false,
-      anchors: true,
-      autoToggle: true,
-      syncTouch: false,
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      wheelMultiplier: 0.92,
-      touchMultiplier: 1.15,
-    });
+  function syncLenis() {
+    const want = !reduced && !narrow.matches && typeof Lenis === "function";
+    if (want && !lenis) {
+      lenis = new Lenis({
+        autoRaf: false,
+        anchors: true,
+        autoToggle: true,
+        syncTouch: false,
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        wheelMultiplier: 0.92,
+        touchMultiplier: 1.15,
+      });
+    } else if (!want && lenis) {
+      try { lenis.destroy(); } catch (_) {}
+      lenis = null;
+      document.documentElement.classList.remove("lenis", "lenis-smooth");
+    }
   }
+  syncLenis();
 
   function scrollToTarget(target, opts) {
     if (target == null) return;
@@ -2240,6 +2587,15 @@ html.is-motion .scene.unpin .masonry { height: auto; display: grid; }
       outer.appendChild(inner);
       el.appendChild(outer);
       el.appendChild(document.createTextNode(" "));
+    });
+  });
+
+  /* Touch / click flip for destination cards (hover is unreliable on phones) */
+  $$(".orbit-card").forEach((card) => {
+    card.addEventListener("click", (e) => {
+      if (e.target.closest("a, button")) return;
+      if (!narrow.matches && fine) return;
+      card.classList.toggle("is-flipped");
     });
   });
 
@@ -2433,10 +2789,17 @@ html.is-motion .scene.unpin .masonry { height: auto; display: grid; }
   const route = $("#route");
   function measure() {
     const tight = narrow.matches;
-    ["gallery", "orbit", "deck", "reel", "price"].forEach((name) => {
+    ["hero", "intro", "gallery", "orbit", "deck", "tunnel", "hscroll", "route", "reel", "price", "curtain"].forEach((name) => {
       const scene = $('[data-scene="' + name + '"]');
-      if (scene) scene.classList.toggle("unpin", tight);
+      if (!scene) return;
+      scene.classList.toggle("unpin", tight);
+      if (tight) scene.style.setProperty("--progress", "1");
     });
+    document.body.classList.toggle("is-narrow", tight);
+    const notesEl = $("#notes-stage");
+    const railEl = $("#reel");
+    if (notesEl) notesEl.classList.toggle("is-stacked", tight);
+    if (tight && railEl) railEl.style.setProperty("--tx", "0px");
     if (reduced) return;
     const exp = $('[data-scene="hscroll"]');
     if (exp) {
@@ -2755,6 +3118,7 @@ html.is-motion .scene.unpin .masonry { height: auto; display: grid; }
 
   function tickNotesMarquee() {
     if (!notesRail || reduced || !notesMarquee.primed) return;
+    if (narrow.matches || document.body.classList.contains("is-narrow")) return;
     if (notesMarquee.dragging) return;
     if (Math.abs(notesMarquee.vel) > 0.15) {
       notesMarquee.offset += notesMarquee.vel;
@@ -2829,13 +3193,14 @@ html.is-motion .scene.unpin .masonry { height: auto; display: grid; }
     $$("[data-scene]").forEach((scene) => {
       const rect = scene.getBoundingClientRect();
       const enter = clamp(1 - rect.top / (vh * 0.7), 0, 1);
-      const p = progressFor(scene, rect, vh);
+      const unpinned = reduced || scene.classList.contains("unpin");
+      const p = unpinned ? 1 : progressFor(scene, rect, vh);
       scene.style.setProperty("--enter", enter.toFixed(4));
       scene.style.setProperty("--progress", p.toFixed(4));
       if (scene.dataset.scene === "hero") {
         syncHeroVideo(p, rect.bottom > 0 && rect.top < vh);
       }
-      if (reduced || scene.classList.contains("unpin")) return;
+      if (unpinned) return;
       if (rect.bottom < -vh || rect.top > vh * 1.4) return;
       const kind = scene.dataset.scene;
       if (kind === "orbit") updateOrbit(scene, p);
@@ -2890,6 +3255,7 @@ html.is-motion .scene.unpin .masonry { height: auto; display: grid; }
     }, 140);
   }, { passive: true });
   narrow.addEventListener("change", () => {
+    syncLenis();
     measure();
     measureNotesHalf();
     wrapNotesOffset();

@@ -695,10 +695,25 @@ ul { margin: 0; padding: 0; list-style: none; }
   .exp-row:nth-child(even) .exp-copy { order: 0; }
   .journey-grid,
   .tiers-grid { grid-template-columns: 1fr; }
+  .page-hero { min-height: 62vh; padding: calc(var(--nav-h) + 36px) 6vw 48px; }
+  .section { padding: 56px 6vw; }
+  .dest-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .to-top { right: 14px; left: auto; bottom: 86px; }
+  .wa { right: 14px; bottom: 14px; width: 52px; height: 52px; }
 }
 @media (max-width: 640px) {
   .form-grid { grid-template-columns: 1fr; }
   .field.wide { grid-column: auto; }
   .foot-grid { grid-template-columns: 1fr; }
-  .page-hero { min-height: 68vh; padding-bottom: 48px; }
+  .page-hero { min-height: 58vh; padding-bottom: 40px; }
+  .page-hero h1 { font-size: clamp(2.2rem, 11vw, 3.2rem); }
+  .dest-grid { grid-template-columns: 1fr; }
+  .notes-grid { grid-template-columns: 1fr; }
+  .section { padding: 48px 5.5vw; }
+  .form-actions { flex-direction: column; align-items: stretch; gap: 12px; }
+  .page-hero .lede { max-width: none; }
+  footer { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  /* Tap-friendly destination flips on touch */
+  .dest-card.is-flipped .flip,
+  .dest-card:focus-within .flip { transform: rotateY(180deg); }
 }
